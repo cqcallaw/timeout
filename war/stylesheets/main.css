@@ -1,0 +1,11 @@
+div.checkin
+{
+	margin: 1px;
+	background-color: lightblue;
+}
+
+div.timeout
+{
+	margin: 1px;
+	background-color: red;
+}
