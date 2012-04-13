@@ -25,8 +25,9 @@
 		if (user != null)
 		{
 			%>
-			<p>
-				Welcome, <%=user.getNickname()%>! (You can <a href="<%=userService.createLogoutURL(request.getRequestURI())%>">sign out</a>.)
+			<p class="salute">
+				Welcome, <%=user.getNickname()%>!<br />
+				<a href="<%=userService.createLogoutURL(request.getRequestURI())%>">sign out</a>
 			</p>
 	
 			<%
@@ -54,6 +55,7 @@
 				boolean timeoutSet = false;
 			%>
 				<h1>Recent Activity</h1>
+				<div id="activity">
 				<%
 				for (Entity entry : activity)
 				{
@@ -94,19 +96,19 @@
 				}
 			}
 			%>
-
-			<div>
+			</div>
+			
+			<div id="start-checkin">
 				<form action="/presence_poll/checkin" method="post">
-					<h1>Start Checkin</h1>
 					<div>
 						<input type="submit" value="Checkin" /> for <input type="text"
 							name="timeout" value="<%=timeout.toString()%>" /> milliseconds.
 					</div>
-					<h2>Notified</h2>
-					<div></div>
 				</form>
 			</div>
-
+			<h1>Notified</h1>
+			<div>
+			</div>
 	<% 
 	} else { %>
 		<p>

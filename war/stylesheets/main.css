@@ -1,11 +1,21 @@
-div.checkin
-{
+div#activity {
+	margin: .5em;
+}
+
+div#start-checkin {
+	text-align: right;
+}
+
+div.checkin {
 	margin: 1px;
 	background-color: lightblue;
 }
 
-div.timeout
-{
+div.timeout {
 	margin: 1px;
 	background-color: red;
+}
+
+p.salute {
+	text-align: right;
 }
