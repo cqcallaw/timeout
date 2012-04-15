@@ -13,6 +13,9 @@
 <%@ page import="com.google.appengine.api.datastore.KeyFactory"%>
 <%@ page import="net.brainvitamins.presencepoll.server.CheckinServlet"%>
 <%@ page import="net.brainvitamins.presencepoll.server.Constants"%>
+<%@ page import="net.brainvitamins.presencepoll.server.Activity"%>
+<%@ page import="net.brainvitamins.presencepoll.server.Checkin"%>
+<%@ page import="net.brainvitamins.presencepoll.server.Timeout"%>
 
 <html>
 <head>
@@ -30,21 +33,12 @@
 				<a href="<%=userService.createLogoutURL(request.getRequestURI())%>">sign out</a>
 			</p>
 	
-			<%
-			DatastoreService datastore = DatastoreServiceFactory
-						.getDatastoreService();
-			
-			Key activityStoreKey = KeyFactory.createKey(Constants.activityKindIdentifier, user.getUserId().toString());
-			
-			Query query = new Query(Constants.activityKindIdentifier, activityStoreKey)
-					.addSort("time", Query.SortDirection.DESCENDING);
-			
-			List<Entity> activity = datastore.prepare(query).asList(
-					FetchOptions.Builder.withLimit(5));
+			<%				
+			List<Activity> activityLog = Constants.SERVICE.getActivityLog(user, 5);
 	
 			Object timeout = new Long(10000);
 	
-			if (activity == null || activity.isEmpty())
+			if (activityLog.isEmpty())
 			{
 			%>
 				<p>No recent activity.</p>
@@ -57,39 +51,37 @@
 				<h1>Recent Activity</h1>
 				<div id="activity">
 				<%
-				for (Entity entry : activity)
+				for (Activity entry : activityLog)
 				{
-					if (entry.getProperty("type").equals("checkin"))
+					if (entry.getClass().equals(Checkin.class))
 					{
+						Checkin result = (Checkin)entry;
 					%>
 						<div class="checkin">
-							[<%=entry.getProperty("time").toString()%>] Checked in
+							[<%=result.getTimestamp().toString()%>] Checked in
 			
 							<%
-							Object entryTimeout = entry.getProperty("timeout");
-							if (entryTimeout != null)
+							long entryTimeout = result.getTimeout();
+							//take the timeout from the most recent checkin as the default for the next checkin timeout
+							if (!timeoutSet)
 							{
-								//take the timeout from the most recent checkin as the default for the next checkin timeout
-								if (!timeoutSet)
-								{
-									timeout = entryTimeout;
-									timeoutSet = true;
-								}
-								%>
-		
-								<%="for " + timeout.toString()
-																+ " milliseconds."%>
-							<%
+								timeout = entryTimeout;
+								timeoutSet = true;
 							}
+							%>
+	
+							<%="for " + timeout.toString() + " milliseconds."%>
+							<%
 						%>
 						</div>
 						<%
 					}
-					else if (entry.getProperty("type").equals("timeout"))
+					else if (entry.getClass().equals(Timeout.class))
 					{
+						Timeout result = (Timeout)entry;
 					%>
 						<div class="timeout">
-							[<%=entry.getProperty("time").toString()%>] Checkin timed out.
+							[<%=result.getTimestamp().toString()%>] Checkin timed out.
 						</div>
 					<%
 					}
