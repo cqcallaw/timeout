@@ -10,7 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
+/*
+ * Notify the server of a timeout (this should only be done by an enqueued Task)
+ */
 public class TimeoutServlet extends HttpServlet
 {
 	private static final long serialVersionUID = -1807657555459402441L;

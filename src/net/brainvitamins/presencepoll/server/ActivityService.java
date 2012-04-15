@@ -18,6 +18,9 @@ import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.users.User;
 
+/*
+ * A service designed to log and record user activity to a datastore.
+ */
 public class ActivityService
 {
 	private DatastoreService datastore;

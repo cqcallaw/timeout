@@ -4,7 +4,6 @@ import java.util.Date;
 
 import com.google.appengine.api.users.User;
 
-// somehow this data structure needs to be related to a task in the task queue
 public class Checkin extends Activity
 {
 	private User user;
