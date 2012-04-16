@@ -11,11 +11,11 @@
 <%@ page import="com.google.appengine.api.datastore.FetchOptions"%>
 <%@ page import="com.google.appengine.api.datastore.Key"%>
 <%@ page import="com.google.appengine.api.datastore.KeyFactory"%>
-<%@ page import="net.brainvitamins.presencepoll.server.CheckinServlet"%>
-<%@ page import="net.brainvitamins.presencepoll.server.Constants"%>
-<%@ page import="net.brainvitamins.presencepoll.server.Activity"%>
-<%@ page import="net.brainvitamins.presencepoll.server.Checkin"%>
-<%@ page import="net.brainvitamins.presencepoll.server.Timeout"%>
+<%@ page import="net.brainvitamins.timeout.server.CheckinServlet"%>
+<%@ page import="net.brainvitamins.timeout.server.Constants"%>
+<%@ page import="net.brainvitamins.timeout.server.Activity"%>
+<%@ page import="net.brainvitamins.timeout.server.Checkin"%>
+<%@ page import="net.brainvitamins.timeout.server.Timeout"%>
 
 <html>
 <head>
@@ -34,7 +34,7 @@
 			</p>
 	
 			<%				
-			List<Activity> activityLog = Constants.SERVICE.getActivityLog(user, 5);
+			List<Activity> activityLog = Constants.ACTIVITYSERVICE.getActivityLog(user, 5);
 	
 			Object timeout = new Long(10000);
 	

@@ -1,4 +1,4 @@
-package net.brainvitamins.presencepoll.server;
+package net.brainvitamins.timeout.server;
 
 import java.util.Date;
 

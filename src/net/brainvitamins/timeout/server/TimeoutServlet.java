@@ -1,4 +1,4 @@
-package net.brainvitamins.presencepoll.server;
+package net.brainvitamins.timeout.server;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -44,7 +44,7 @@ public class TimeoutServlet extends HttpServlet
 			format.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Date startTime = format.parse(startTimeParameter);
 
-			Constants.SERVICE.logActivity(new Timeout(new Date(), timeout,
+			Constants.ACTIVITYSERVICE.logActivity(new Timeout(new Date(), timeout,
 					startTime, userId, userEmail));
 		}
 		catch (ParseException e)

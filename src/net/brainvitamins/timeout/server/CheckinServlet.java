@@ -1,4 +1,4 @@
-package net.brainvitamins.presencepoll.server;
+package net.brainvitamins.timeout.server;
 
 import java.io.IOException;
 import java.util.Date;
@@ -29,7 +29,7 @@ public class CheckinServlet extends HttpServlet
 			throw new IllegalArgumentException(
 					"Parameter timeout cannot be less than one (was it defined?)");
 
-		Constants.SERVICE.logActivity(new Checkin(user, timestamp, timeout));
+		Constants.ACTIVITYSERVICE.logActivity(new Checkin(user, timestamp, timeout));
 
 		resp.sendRedirect("/");
 	}
