@@ -22,7 +22,7 @@
 
 	<servlet-mapping>
 		<servlet-name>checkinServlet</servlet-name>
-		<url-pattern>/presence_poll/checkin</url-pattern>
+		<url-pattern>/hellohello/checkin</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
@@ -32,12 +32,33 @@
 
 	<servlet-mapping>
 		<servlet-name>timeoutServlet</servlet-name>
-		<url-pattern>/presence_poll/timeout</url-pattern>
+		<url-pattern>/hellohello/timeout</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>loginService</servlet-name>
+		<servlet-class>net.brainvitamins.timeout.server.LoginServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>loginService</servlet-name>
+		<url-pattern>/hellohello/login</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>activityService</servlet-name>
+		<servlet-class>net.brainvitamins.timeout.server.ActivityServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>activityService</servlet-name>
+		<url-pattern>/hellohello/activity</url-pattern>
 	</servlet-mapping>
 
 	<!-- Default page to serve -->
 	<welcome-file-list>
-		<welcome-file>landing.jsp</welcome-file>
+		<!-- <welcome-file>landing.jsp</welcome-file> -->
+		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
 
 </web-app>

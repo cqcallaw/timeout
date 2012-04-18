@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.brainvitamins.timeout.shared.Timeout;
+
 /*
  * Notify the server of a timeout (this should only be done by an enqueued Task)
  */

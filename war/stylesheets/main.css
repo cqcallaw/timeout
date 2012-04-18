@@ -2,7 +2,11 @@ div#activity {
 	margin: .5em;
 }
 
-div#start-checkin {
+div#checkin {
+	text-align: right;
+}
+
+div#user {
 	text-align: right;
 }
 

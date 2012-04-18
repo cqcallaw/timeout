@@ -2,6 +2,8 @@ package net.brainvitamins.timeout.server;
 
 import java.util.Date;
 
+import net.brainvitamins.timeout.shared.Activity;
+
 import com.google.appengine.api.users.User;
 
 public class Checkin extends Activity
@@ -18,16 +20,10 @@ public class Checkin extends Activity
 		return timeout;
 	}
 
-	private Date timestamp;
-	public Date getTimestamp()
-	{
-		return timestamp;
-	}
-	
 	public Checkin(User user, Date timestamp, long timeout)
 	{
+		super(timestamp);
 		this.user = user;
-		this.timestamp = timestamp;
 		this.timeout = timeout;
 	}
 }

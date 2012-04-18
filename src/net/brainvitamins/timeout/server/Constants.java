@@ -8,7 +8,7 @@ public class Constants
 {
 	public static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
-	public static final ActivityService ACTIVITYSERVICE = new ActivityService(
+	public static final ActivityLogger ACTIVITYSERVICE = new ActivityLogger(
 			DatastoreServiceFactory.getDatastoreService(),
 			QueueFactory.getDefaultQueue(), "Activity");
 }

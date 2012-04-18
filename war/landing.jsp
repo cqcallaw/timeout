@@ -13,9 +13,9 @@
 <%@ page import="com.google.appengine.api.datastore.KeyFactory"%>
 <%@ page import="net.brainvitamins.timeout.server.CheckinServlet"%>
 <%@ page import="net.brainvitamins.timeout.server.Constants"%>
-<%@ page import="net.brainvitamins.timeout.server.Activity"%>
+<%@ page import="net.brainvitamins.timeout.shared.Activity"%>
 <%@ page import="net.brainvitamins.timeout.server.Checkin"%>
-<%@ page import="net.brainvitamins.timeout.server.Timeout"%>
+<%@ page import="net.brainvitamins.timeout.shared.Timeout"%>
 
 <html>
 <head>

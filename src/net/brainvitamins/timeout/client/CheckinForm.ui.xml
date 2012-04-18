@@ -1,0 +1,16 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+	<g:HTMLPanel>
+		<div id="checkin">
+			<form ui:field="checkinForm">
+				<div>
+					<input type="submit" value="Checkin" />
+					for
+					<input type="text" name="timeout" ui:field="timeoutField" />
+					milliseconds.
+				</div>
+			</form>
+		</div>
+	</g:HTMLPanel>
+</ui:UiBinder>

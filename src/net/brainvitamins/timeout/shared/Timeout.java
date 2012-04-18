@@ -1,9 +1,15 @@
-package net.brainvitamins.timeout.server;
+package net.brainvitamins.timeout.shared;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Timeout extends Activity
+public class Timeout extends Activity implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5435541820544915944L;
+
 	private String userId;
 
 	public String getUserId()
@@ -16,13 +22,6 @@ public class Timeout extends Activity
 	public String getUserEmail()
 	{
 		return userEmail;
-	}
-
-	private Date timestamp;
-
-	public Date getTimestamp()
-	{
-		return timestamp;
 	}
 
 	private long timeout;
@@ -39,10 +38,15 @@ public class Timeout extends Activity
 		return startTime;
 	}
 
-	public Timeout(Date timestamp, long timeout, Date startTime,
-			String userId, String userEmail)
+	public Timeout()
 	{
-		this.timestamp = timestamp;
+		this(new Date(), 0, new Date(), "", "");
+	}
+
+	public Timeout(Date timestamp, long timeout, Date startTime, String userId,
+			String userEmail)
+	{
+		super(timestamp);
 		this.timeout = timeout;
 		this.startTime = startTime;
 		this.userId = userId;

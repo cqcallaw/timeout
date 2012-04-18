@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import net.brainvitamins.timeout.shared.Activity;
+import net.brainvitamins.timeout.shared.Timeout;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
@@ -17,11 +20,14 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.google.gwt.core.client.GWT;
 
 /*
  * A service designed to log and record user activity to a datastore.
  */
-public class ActivityService
+public class ActivityLogger
 {
 	private DatastoreService datastore;
 
@@ -46,7 +52,7 @@ public class ActivityService
 
 	private SimpleDateFormat dateFormat;
 
-	public ActivityService(DatastoreService datastore, Queue queue,
+	public ActivityLogger(DatastoreService datastore, Queue queue,
 			String activityKindIdentifier)
 	{
 		this.datastore = datastore;
@@ -57,9 +63,11 @@ public class ActivityService
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
 
-	// returns an activity log sorted in descending order by time.
-	public List<Activity> getActivityLog(User user, int sizeLimit)
+	public List<Activity> getActivityLog(int sizeLimit)
 	{
+		UserService userService = UserServiceFactory.getUserService();
+		User user = userService.getCurrentUser();
+
 		Key activityStoreKey = KeyFactory.createKey(activityKindIdentifier,
 				user.getUserId().toString());
 
@@ -146,7 +154,7 @@ public class ActivityService
 		// TODO: verify the task was actually deleted.
 
 		TaskOptions taskOptions = TaskOptions.Builder
-				.withUrl("/presence_poll/timeout").countdownMillis(timeout)
+				.withUrl("/hellohello/timeout").countdownMillis(timeout)
 				.param("userId", user.getUserId())
 				.param("userEmail", user.getEmail()).param("startTime", time)
 				.param("timeout", Long.toString(timeout))
