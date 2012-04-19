@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.brainvitamins.timeout.shared.Checkin;
+
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -30,7 +32,7 @@ public class CheckinServlet extends HttpServlet
 			throw new IllegalArgumentException(
 					"Parameter timeout cannot be less than one (was it defined?)");
 
-		Constants.ACTIVITYSERVICE.logActivity(new Checkin(user, timestamp, timeout));
+		Constants.ACTIVITYSERVICE.logActivity(new Checkin(timestamp, timeout));
 
 		resp.sendRedirect("/");
 	}

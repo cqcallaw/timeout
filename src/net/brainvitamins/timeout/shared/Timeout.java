@@ -10,13 +10,6 @@ public class Timeout extends Activity implements Serializable
 	 */
 	private static final long serialVersionUID = 5435541820544915944L;
 
-	private String userId;
-
-	public String getUserId()
-	{
-		return userId;
-	}
-
 	private String userEmail;
 
 	public String getUserEmail()
@@ -49,7 +42,6 @@ public class Timeout extends Activity implements Serializable
 		super(timestamp);
 		this.timeout = timeout;
 		this.startTime = startTime;
-		this.userId = userId;
 		this.userEmail = userEmail;
 	}
 }

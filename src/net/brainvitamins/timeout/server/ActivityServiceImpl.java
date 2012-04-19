@@ -32,14 +32,14 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 	 */
 	private static final long serialVersionUID = 3820757361541824185L;
 
+	private DatastoreService datastore = DatastoreServiceFactory
+			.getDatastoreService();
+
 	@Override
 	public List<Activity> getActivityLog(int sizeLimit)
 	{
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-
-		DatastoreService datastore = DatastoreServiceFactory
-				.getDatastoreService();
 
 		Key activityStoreKey = KeyFactory.createKey("Activity", user
 				.getUserId().toString());
@@ -54,14 +54,14 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 
 		for (Entity entity : activityEntries)
 		{
-			Activity activity = reconstituteActivity(user, entity);
+			Activity activity = reconstituteActivity(entity);
 			if (activity != null) activityLog.add(activity);
 		}
 
 		return activityLog;
 	}
 
-	private Activity reconstituteActivity(User user, Entity entity)
+	private Activity reconstituteActivity(Entity entity)
 	{
 		SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATEFORMAT);
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -80,8 +80,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 				return null;
 			}
 
-			return new net.brainvitamins.timeout.shared.Checkin(
-					user.getUserId(), timestamp,
+			return new net.brainvitamins.timeout.shared.Checkin(timestamp,
 					(Long) entity.getProperty("timeout"));
 		}
 		else if (entity.getProperty("type").equals("timeout"))

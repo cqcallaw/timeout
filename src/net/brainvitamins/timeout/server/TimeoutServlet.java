@@ -46,8 +46,8 @@ public class TimeoutServlet extends HttpServlet
 			format.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Date startTime = format.parse(startTimeParameter);
 
-			Constants.ACTIVITYSERVICE.logActivity(new Timeout(new Date(), timeout,
-					startTime, userId, userEmail));
+			Constants.ACTIVITYSERVICE.logActivity(userId, new Timeout(
+					new Date(), timeout, startTime, userId, userEmail));
 		}
 		catch (ParseException e)
 		{

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import net.brainvitamins.timeout.shared.Activity;
+import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.Timeout;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -22,7 +23,6 @@ import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.gwt.core.client.GWT;
 
 /*
  * A service designed to log and record user activity to a datastore.
@@ -81,14 +81,14 @@ public class ActivityLogger
 
 		for (Entity entity : activityEntries)
 		{
-			Activity activity = reconstituteActivity(user, entity);
+			Activity activity = reconstituteActivity(entity);
 			if (activity != null) activityLog.add(activity);
 		}
 
 		return activityLog;
 	}
 
-	private Activity reconstituteActivity(User user, Entity entity)
+	private Activity reconstituteActivity(Entity entity)
 	{
 		if (entity.getProperty("type").equals("checkin"))
 		{
@@ -104,8 +104,7 @@ public class ActivityLogger
 				return null;
 			}
 
-			return new Checkin(user, timestamp,
-					(Long) entity.getProperty("timeout"));
+			return new Checkin(timestamp, (Long) entity.getProperty("timeout"));
 		}
 		else if (entity.getProperty("type").equals("timeout"))
 		{
@@ -134,12 +133,14 @@ public class ActivityLogger
 
 	public void logActivity(Checkin checkin)
 	{
-		User user = checkin.getUser();
+		UserService userService = UserServiceFactory.getUserService();
+		User user = userService.getCurrentUser();
+
 		Date timestamp = checkin.getTimestamp();
 		long timeout = checkin.getTimeout();
 
 		Key activityStoreKey = KeyFactory.createKey(activityKindIdentifier,
-				checkin.getUser().getUserId().toString());
+				user.getUserId().toString());
 		Entity entry = new Entity(activityKindIdentifier, activityStoreKey);
 
 		String time = dateFormat.format(timestamp);
@@ -166,10 +167,10 @@ public class ActivityLogger
 		datastore.put(entry);
 	}
 
-	public void logActivity(Timeout timeout)
+	public void logActivity(String userId, Timeout timeout)
 	{
 		Key activityStoreKey = KeyFactory.createKey(activityKindIdentifier,
-				timeout.getUserId());
+				userId);
 
 		Entity timeoutEntry = new Entity(activityKindIdentifier,
 				activityStoreKey);
