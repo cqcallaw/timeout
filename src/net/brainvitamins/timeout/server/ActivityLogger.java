@@ -182,8 +182,5 @@ public class ActivityLogger
 		timeoutEntry.setProperty("timeout", timeout.getTimeout());
 
 		datastore.put(timeoutEntry);
-
-		System.out.println("Timeout! " + timeout.getUserEmail() + "|"
-				+ timeout.getStartTime() + "|" + timeout.getTimeout());
 	}
 }

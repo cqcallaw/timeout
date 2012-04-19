@@ -15,6 +15,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.shared.DefaultDateTimeFormatInfo;
+import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
@@ -27,6 +29,8 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.HasData;
+import com.google.gwt.view.client.ListDataProvider;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -41,12 +45,17 @@ public class HelloHello implements EntryPoint
 			+ "attempting to contact the server. Please check your network "
 			+ "connection and try again.";
 
+	private static final int REFRESH_INTERVAL = 500; // ms
+
 	private LoginInfo loginInfo = null;
 	private VerticalPanel loginPanel = new VerticalPanel();
 	private Label loginLabel = new Label(
 			"Please sign in to your Google Account to access the application.");
 	private Anchor signInLink = new Anchor("Sign In");
 	private Anchor signOutLink = new Anchor("Sign Out");
+
+	private ActivityServiceAsync activityService = GWT
+			.create(ActivityService.class);
 
 	/**
 	 * This is the entry point method.
@@ -91,18 +100,44 @@ public class HelloHello implements EntryPoint
 		signOutLink.setHref(loginInfo.getLogoutUrl());
 		RootPanel.get("user").add(signOutLink);
 
-		final CheckinForm checkinForm = new CheckinForm(GWT.getModuleBaseURL()
+		final CheckinView checkinForm = new CheckinView(GWT.getModuleBaseURL()
 				.concat("checkin"), FormPanel.METHOD_POST);
 		RootPanel.get("checkin").add(checkinForm);
 
+		DefaultDateTimeFormatInfo dateFormatInfo = new DefaultDateTimeFormatInfo();
+		final String dateFormat = dateFormatInfo.dateTimeShort(
+				dateFormatInfo.timeFormatShort(),
+				dateFormatInfo.dateFormatShort());
+
 		final RootPanel activityPanel = RootPanel.get("activity");
-		final FlexTable activityView = new FlexTable();
+
+		final ListDataProvider<Activity> dataProvider = new ListDataProvider<Activity>();
+		final ActivityView activityView = new ActivityView(dateFormat,
+				dataProvider);
 
 		activityPanel.add(activityView);
 
-		ActivityServiceAsync activityService = GWT
-				.create(ActivityService.class);
+		refreshActivity(dataProvider, checkinForm);
 
+		// refresh
+		Timer refreshTimer = new Timer()
+		{
+			@Override
+			public void run()
+			{
+				refreshActivity(dataProvider, checkinForm);
+			}
+		};
+
+		refreshTimer.scheduleRepeating(REFRESH_INTERVAL);
+	}
+
+	/**
+	 * 
+	 */
+	private void refreshActivity(final ListDataProvider<Activity> dataProvider,
+			final CheckinView checkinForm)
+	{
 		activityService.getActivityLog(5, new AsyncCallback<List<Activity>>()
 		{
 
@@ -116,66 +151,28 @@ public class HelloHello implements EntryPoint
 			@Override
 			public void onSuccess(List<Activity> result)
 			{
-				if (result.isEmpty())
+				List<Activity> activityList = dataProvider.getList();
+				activityList.clear();
+				for (Activity activity : result)
 				{
-					activityPanel.add(new Label("No recent activity"));
+					activityList.add(activity);
 				}
-				else
-				{
-					Long timeout = new Long(10000);
-
-					boolean timeoutSet = false;
-
-					DefaultDateTimeFormatInfo dateFormatInfo = new DefaultDateTimeFormatInfo();
-					String dateFormat = dateFormatInfo.dateTimeShort(
-							dateFormatInfo.timeFormatShort(),
-							dateFormatInfo.dateFormatShort());
-
-					int rowIndex = 0;
-					for (Activity entry : result)
-					{
-						if (entry.getClass().equals(Checkin.class))
-						{
-							Checkin logEntry = (Checkin) entry;
-
-							long entryTimeout = logEntry.getTimeout();
-							// use the timeout from the most recent checkin as
-							// the
-							// default for the next checkin timeout
-							if (!timeoutSet)
-							{
-								timeout = entryTimeout;
-								timeoutSet = true;
-							}
-
-							activityView.setText(rowIndex, 0,
-									DateTimeFormat.getFormat(dateFormat)
-											.format(logEntry.getTimestamp()));
-
-							activityView.setText(rowIndex, 1, "Checkin");
-
-							activityView.setText(rowIndex, 2,
-									String.valueOf(entryTimeout));
-						}
-
-						else if (entry.getClass().equals(Timeout.class))
-						{
-							Timeout logEntry = (Timeout) entry;
-
-							activityView.setText(rowIndex, 0,
-									DateTimeFormat.getFormat(dateFormat)
-											.format(logEntry.getTimestamp()));
-
-							activityView.setText(rowIndex, 1, "Timeout");
-						}
-
-						rowIndex++;
-					}
-
-					checkinForm.setTimeout(timeout);
-				}
+				// //TODO: awesome data model stuff so we don't have to do hax
+				// like this
+				//
+				// long timeout = 10000;
+				// // set default timeout to most recent checkin's setting
+				// for (Activity entry : result)
+				// {
+				// if (entry.getClass().equals(Checkin.class))
+				// {
+				// timeout = ((Checkin) entry).getTimeout();
+				// break;
+				// }
+				// }
+				//
+				// checkinForm.setTimeout(timeout);
 			}
 		});
-
 	}
 }

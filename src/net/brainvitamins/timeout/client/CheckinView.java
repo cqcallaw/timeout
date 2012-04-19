@@ -8,12 +8,12 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
-public class CheckinForm extends Composite
+public class CheckinView extends Composite
 {
 
 	private static CheckinUiBinder uiBinder = GWT.create(CheckinUiBinder.class);
 
-	interface CheckinUiBinder extends UiBinder<Widget, CheckinForm> { }
+	interface CheckinUiBinder extends UiBinder<Widget, CheckinView> { }
 
 	@UiField
 	FormElement checkinForm;
@@ -27,7 +27,7 @@ public class CheckinForm extends Composite
 	}
 
 	// TODO: input validation on formAction argument
-	public CheckinForm(String formAction, String method)
+	public CheckinView(String formAction, String method)
 	{
 		initWidget(uiBinder.createAndBindUi(this));
 
