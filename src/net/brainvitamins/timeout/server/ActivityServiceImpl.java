@@ -21,6 +21,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import net.brainvitamins.timeout.client.ActivityService;
 import net.brainvitamins.timeout.shared.Activity;
+import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.Timeout;
 
 public class ActivityServiceImpl extends RemoteServiceServlet implements
@@ -80,8 +81,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 				return null;
 			}
 
-			return new net.brainvitamins.timeout.shared.Checkin(timestamp,
-					(Long) entity.getProperty("timeout"));
+			return new Checkin(timestamp, (Long) entity.getProperty("timeout"));
 		}
 		else if (entity.getProperty("type").equals("timeout"))
 		{
