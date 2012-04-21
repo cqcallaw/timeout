@@ -17,7 +17,7 @@
 
 	<servlet>
 		<servlet-name>checkinServlet</servlet-name>
-		<servlet-class>net.brainvitamins.timeout.server.CheckinServlet</servlet-class>
+		<servlet-class>net.brainvitamins.timeout.server.CheckinServiceImpl</servlet-class>
 	</servlet>
 
 	<servlet-mapping>

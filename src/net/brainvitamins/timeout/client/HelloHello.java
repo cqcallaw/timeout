@@ -2,6 +2,7 @@ package net.brainvitamins.timeout.client;
 
 import java.util.List;
 
+import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.LoginInfo;
 
@@ -86,8 +87,7 @@ public class HelloHello implements EntryPoint
 		signOutLink.setHref(loginInfo.getLogoutUrl());
 		RootPanel.get("user").add(signOutLink);
 
-		final CheckinView checkinForm = new CheckinView(GWT.getModuleBaseURL()
-				.concat("checkin"), FormPanel.METHOD_POST);
+		final CheckinView checkinForm = new CheckinView();
 		RootPanel.get("checkin").add(checkinForm);
 
 		DefaultDateTimeFormatInfo dateFormatInfo = new DefaultDateTimeFormatInfo();

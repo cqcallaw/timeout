@@ -1,28 +1,21 @@
 package net.brainvitamins.timeout.server;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.TimeZone;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 
 import net.brainvitamins.timeout.client.ActivityService;
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Checkin;
-import net.brainvitamins.timeout.shared.Timeout;
+import net.brainvitamins.timeout.shared.User;
+
+import com.google.appengine.api.users.UserServiceFactory;
+import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class ActivityServiceImpl extends RemoteServiceServlet implements
 		ActivityService
@@ -33,78 +26,69 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 	 */
 	private static final long serialVersionUID = 3820757361541824185L;
 
-	private DatastoreService datastore = DatastoreServiceFactory
-			.getDatastoreService();
-
 	@Override
 	public List<Activity> getActivityLog(int sizeLimit)
 	{
-		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
+		com.google.appengine.api.users.User user = UserServiceFactory
+				.getUserService().getCurrentUser();
 
-		Key activityStoreKey = KeyFactory.createKey("Activity", user
-				.getUserId().toString());
-
-		Query query = new Query("Activity", activityStoreKey).addSort("time",
-				Query.SortDirection.DESCENDING);
-
-		List<Entity> activityEntries = datastore.prepare(query).asList(
-				FetchOptions.Builder.withLimit(sizeLimit));
+		// TODO: refactor the JDO query that gets the user into a single method
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		Query query = pm.newQuery(User.class);
+		query.setFilter("id == userIdParam");
+		query.declareParameters("String userIdParam");
 
 		List<Activity> activityLog = new ArrayList<Activity>();
-
-		for (Entity entity : activityEntries)
+		try
 		{
-			Activity activity = reconstituteActivity(entity);
-			if (activity != null) activityLog.add(activity);
+			Object rawResults = query.execute(user.getUserId());
+			List<User> results = (List<User>) rawResults;
+
+			// sanity checks
+			if (results.isEmpty() || results.size() > 1)
+			{
+				throw new InvalidParameterException("Invalid user specified");
+			}
+
+			User currentUser = results.get(0);
+
+			// sort items in descending order
+			// would be nice to do this as part of the JDO query...
+			Collections.sort(currentUser.getActivityLog(),
+					new Comparator<Activity>()
+					{
+						@Override
+						public int compare(Activity o1, Activity o2)
+						{
+							return o2.getTimestamp().compareTo(
+									o1.getTimestamp());
+						}
+					});
+
+			int i = 0;
+			for (Activity activity : currentUser.getActivityLog())
+			{			
+				if (i >= sizeLimit) break;
+
+				// touch timeout field in Checkin object to make sure it's
+				// loaded. *grumble*
+				if (activity.getClass().equals(Checkin.class))
+				{
+					((Checkin) activity).getTimeout();
+				}
+
+				activityLog.add(activity);
+				i++;
+			}
+
+		}
+		// TODO: handle data exceptions
+		finally
+		{
+			query.closeAll();
+			pm.close();
 		}
 
 		return activityLog;
-	}
-
-	private Activity reconstituteActivity(Entity entity)
-	{
-		SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATEFORMAT);
-		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-		if (entity.getProperty("type").equals("checkin"))
-		{
-			Date timestamp = null;
-			try
-			{
-				timestamp = dateFormat.parse((String) entity
-						.getProperty("time"));
-			}
-			catch (ParseException e)
-			{
-				System.out.println("Error parsing date.");
-				return null;
-			}
-
-			return new Checkin(timestamp, (Long) entity.getProperty("timeout"));
-		}
-		else if (entity.getProperty("type").equals("timeout"))
-		{
-			Date timestamp = null;
-			Date startTime = null;
-			try
-			{
-				timestamp = dateFormat.parse((String) entity
-						.getProperty("time"));
-				startTime = dateFormat.parse((String) entity
-						.getProperty("startTime"));
-			}
-			catch (ParseException e)
-			{
-				System.out.println("Error parsing date.");
-				return null;
-			}
-
-			return new Timeout(timestamp, (Long) entity.getProperty("timeout"),
-					startTime, (String) entity.getProperty("userId"),
-					(String) entity.getProperty("userEmail"));
-		}
-		else
-			return null;
 	}
 }

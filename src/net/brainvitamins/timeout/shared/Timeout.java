@@ -3,6 +3,11 @@ package net.brainvitamins.timeout.shared;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+
+@PersistenceCapable
+// @Inheritance(strategy = InheritanceStrategy.SUBCLASS_TABLE)
 public class Timeout extends Activity implements Serializable
 {
 	/**
@@ -10,13 +15,7 @@ public class Timeout extends Activity implements Serializable
 	 */
 	private static final long serialVersionUID = 5435541820544915944L;
 
-	private String userEmail;
-
-	public String getUserEmail()
-	{
-		return userEmail;
-	}
-
+	@Persistent(defaultFetchGroup = "true")
 	private long timeout;
 
 	public long getTimeout()
@@ -24,6 +23,7 @@ public class Timeout extends Activity implements Serializable
 		return timeout;
 	}
 
+	@Persistent(defaultFetchGroup = "true")
 	private Date startTime;
 
 	public Date getStartTime()
@@ -33,15 +33,13 @@ public class Timeout extends Activity implements Serializable
 
 	public Timeout()
 	{
-		this(new Date(), 0, new Date(), "", "");
+		this(new Date(), 0, new Date());
 	}
 
-	public Timeout(Date timestamp, long timeout, Date startTime, String userId,
-			String userEmail)
+	public Timeout(Date timestamp, long timeout, Date startTime)
 	{
 		super(timestamp);
 		this.timeout = timeout;
 		this.startTime = startTime;
-		this.userEmail = userEmail;
 	}
 }

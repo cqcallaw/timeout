@@ -3,14 +3,10 @@
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 	<g:HTMLPanel>
 		<div id="checkin">
-			<form ui:field="checkinForm">
-				<div>
-					<input type="submit" value="Checkin" />
-					for
-					<input type="text" name="timeout" ui:field="timeoutField" />
-					milliseconds.
-				</div>
-			</form>
+			<g:Button ui:field="checkinButton" text="Checkin" />
+			for
+			<input type="text" name="timeout" ui:field="timeoutField" value="1000" />
+			milliseconds.
 		</div>
 	</g:HTMLPanel>
 </ui:UiBinder>

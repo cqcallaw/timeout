@@ -24,7 +24,6 @@ public class TimeoutServlet extends HttpServlet
 			throws IOException
 	{
 		String userId = req.getParameter("userId");
-		String userEmail = req.getParameter("userEmail");
 		String startTimeParameter = req.getParameter("startTime");
 		String timeoutParameter = req.getParameter("timeout");
 
@@ -47,7 +46,7 @@ public class TimeoutServlet extends HttpServlet
 			Date startTime = format.parse(startTimeParameter);
 
 			Constants.ACTIVITYSERVICE.logActivity(userId, new Timeout(
-					new Date(), timeout, startTime, userId, userEmail));
+					new Date(), timeout, startTime));
 		}
 		catch (ParseException e)
 		{
