@@ -1,4 +1,4 @@
-package net.brainvitamins.timeout.client;
+package net.brainvitamins.timeout.client.views;
 
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Checkin;
@@ -25,33 +25,33 @@ public class ActivityView extends Composite
 	}
 
 	@UiField(provided = true)
-	final CellTable<Activity> activityView = new CellTable<Activity>();
+	final CellTable<Activity> activityView;
 
 	public CellTable<Activity> getActivityView()
 	{
 		return activityView;
 	}
 
-	private String dateFormat;
+	private String dateFormat = "yyyy-MM-dd hh:MM:ss";
 
 	public String getDateFormat()
 	{
 		return dateFormat;
 	}
 
-	/*
-	 * Construct an activity view and register it with the provided data provider, if registration hasn't occurred already
-	 */
 	public ActivityView(final String dateFormat,
 			ListDataProvider<Activity> dataProvider)
 	{
-		initWidget(uiBinder.createAndBindUi(this));
+		if (dateFormat == null || dateFormat.isEmpty())
+			throw new IllegalArgumentException(
+					"dateFormat cannot be empty or null.");
+
+		if (dataProvider == null)
+			throw new IllegalArgumentException("dataProvider cannot be null.");
+
 		this.dateFormat = dateFormat;
 
-		// register with the supplied data provider if we haven't already
-		if (!dataProvider.getDataDisplays().contains(activityView))
-			dataProvider.addDataDisplay(activityView);
-
+		activityView = new CellTable<Activity>();
 		activityView.setEmptyTableWidget(new Label("No recent activity"));
 
 		TextColumn<Activity> timestampColumn = new TextColumn<Activity>()
@@ -95,5 +95,9 @@ public class ActivityView extends Composite
 		activityView.addColumn(timestampColumn);
 		activityView.addColumn(typeColumn);
 		activityView.addColumn(timeoutColumn);
+
+		dataProvider.addDataDisplay(activityView);
+
+		initWidget(uiBinder.createAndBindUi(this));
 	}
 }

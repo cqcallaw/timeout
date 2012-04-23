@@ -3,7 +3,7 @@ package net.brainvitamins.timeout.server;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.brainvitamins.timeout.client.RecipientService;
+import net.brainvitamins.timeout.client.services.RecipientService;
 import net.brainvitamins.timeout.shared.Recipient;
 
 import com.google.appengine.api.datastore.DatastoreService;

@@ -5,7 +5,7 @@ import java.util.List;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
-import net.brainvitamins.timeout.client.LoginService;
+import net.brainvitamins.timeout.client.services.LoginService;
 import net.brainvitamins.timeout.shared.LoginInfo;
 import net.brainvitamins.timeout.shared.User;
 

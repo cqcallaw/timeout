@@ -9,7 +9,7 @@ import java.util.List;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
-import net.brainvitamins.timeout.client.ActivityService;
+import net.brainvitamins.timeout.client.services.ActivityService;
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.User;

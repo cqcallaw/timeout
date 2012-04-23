@@ -25,6 +25,7 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.gwt.core.client.GWT;
 
 /*
  * A service designed to log and record user activity to a datastore.
@@ -65,160 +66,6 @@ public class ActivityLogger
 		dateFormat = new SimpleDateFormat(Constants.DATEFORMAT);
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
-
-	// TODO: folder this code into the ActivityServiceImpl class
-	// public List<Activity> getActivityLog(int sizeLimit)
-	// {
-	// UserService userService = UserServiceFactory.getUserService();
-	// User user = userService.getCurrentUser();
-	//
-	// Key activityStoreKey = KeyFactory.createKey(activityKindIdentifier,
-	// user.getUserId().toString());
-	//
-	// Query query = new Query(activityKindIdentifier, activityStoreKey)
-	// .addSort("time", Query.SortDirection.DESCENDING);
-	//
-	// List<Entity> activityEntries = datastore.prepare(query).asList(
-	// FetchOptions.Builder.withLimit(sizeLimit));
-	//
-	// List<Activity> activityLog = new ArrayList<Activity>();
-	//
-	// for (Entity entity : activityEntries)
-	// {
-	// Activity activity = reconstituteActivity(entity);
-	// if (activity != null) activityLog.add(activity);
-	// }
-	//
-	// return activityLog;
-	// }
-
-	// private Activity reconstituteActivity(Entity entity)
-	// {
-	// if (entity.getProperty("type").equals("checkin"))
-	// {
-	// Date timestamp = null;
-	// try
-	// {
-	// timestamp = dateFormat.parse((String) entity
-	// .getProperty("time"));
-	// }
-	// catch (ParseException e)
-	// {
-	// System.out.println("Error parsing date.");
-	// return null;
-	// }
-	//
-	// return new Checkin(timestamp, (Long) entity.getProperty("timeout"));
-	// }
-	// else if (entity.getProperty("type").equals("timeout"))
-	// {
-	// Date timestamp = null;
-	// Date startTime = null;
-	// try
-	// {
-	// timestamp = dateFormat.parse((String) entity
-	// .getProperty("time"));
-	// startTime = dateFormat.parse((String) entity
-	// .getProperty("startTime"));
-	// }
-	// catch (ParseException e)
-	// {
-	// System.out.println("Error parsing date.");
-	// return null;
-	// }
-	//
-	// return new Timeout(timestamp, (Long) entity.getProperty("timeout"),
-	// startTime);
-	// }
-	// else
-	// return null;
-	// }
-
-	// public void logActivity(Checkin checkin)
-	// {
-	// // UserService userService = UserServiceFactory.getUserService();
-	// // User user = userService.getCurrentUser();
-	// //
-	// Date timestamp = checkin.getTimestamp();
-	// long timeout = checkin.getTimeout();
-	// String time = dateFormat.format(timestamp);
-	// //
-	// // Key activityStoreKey = KeyFactory.createKey(activityKindIdentifier,
-	// // user.getUserId().toString());
-	// // Entity entry = new Entity(activityKindIdentifier, activityStoreKey);
-	// //
-	// //
-	// // entry.setProperty("type", "checkin");
-	// // entry.setProperty("time", time);
-	// // entry.setProperty("timeout", timeout);
-	//
-	// com.google.appengine.api.users.User user = UserServiceFactory
-	// .getUserService().getCurrentUser();
-	//
-	// PersistenceManager pm = Constants.pmfInstance.getPersistenceManager();
-	// Query query = pm.newQuery(User.class);
-	// query.setFilter("userId == userIdParam");
-	// query.declareParameters("String userIdParam");
-	//
-	// List<Activity> activityLog;
-	// try
-	// {
-	// Object rawResults = query.execute(user.getUserId());
-	// List<User> results = (List<User>) rawResults;
-	//
-	// // sanity checks
-	// if (results.isEmpty() || results.size() > 1)
-	// {
-	// throw new InvalidParameterException("Invalid user specified");
-	// }
-	//
-	// activityLog = results.get(0).getActivityLog();
-	//
-	// // cancel active timeout
-	// queue.deleteTask(user.getUserId());
-	//
-	// // TODO: verify the task was actually deleted.
-	//
-	// TaskOptions taskOptions = TaskOptions.Builder
-	// .withUrl("/hellohello/timeout").countdownMillis(timeout)
-	// .param("userId", user.getUserId())
-	// .param("userEmail", user.getEmail())
-	// .param("startTime", time)
-	// .param("timeout", Long.toString(timeout))
-	// .taskName(user.getUserId());
-	//
-	// queue.add(taskOptions);
-	//
-	// activityLog.add(checkin);
-	// }
-	// finally
-	// {
-	// query.closeAll();
-	// pm.close();
-	// }
-	//
-	// // entry.setProperty("taskName", taskHandle.getName());
-	//
-	// // datastore.put(entry);
-	// }
-
-	// public void logActivity(String userId, Timeout timeout)
-	// {
-	// Key activityStoreKey = KeyFactory.createKey(activityKindIdentifier,
-	// userId);
-	//
-	// Entity timeoutEntry = new Entity(activityKindIdentifier,
-	// activityStoreKey);
-	//
-	// timeoutEntry.setProperty("type", "timeout");
-	// timeoutEntry.setProperty("time",
-	// dateFormat.format(timeout.getTimestamp()));
-	// timeoutEntry.setProperty("startTime",
-	// dateFormat.format(timeout.getStartTime()));
-	// timeoutEntry.setProperty("timeout", timeout.getTimeout());
-	//
-	// datastore.put(timeoutEntry);
-	// }
 
 	public void logActivity(Activity activity)
 	{
@@ -263,6 +110,7 @@ public class ActivityLogger
 
 				// TODO: verify the task was actually deleted.
 
+				// TODO: move this to a RemoteService so we don't have to hardcode the module path
 				TaskOptions taskOptions = TaskOptions.Builder
 						.withUrl("/hellohello/timeout")
 						.countdownMillis(timeout).param("userId", userId)

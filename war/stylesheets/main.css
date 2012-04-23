@@ -1,8 +1,8 @@
-div#content {
+div#container {
 	width: 800px;
 	margin: 0 auto;
 	padding: 1em;
-	border: 1px solid lightblue;
+	border-bottom: 1px solid lightblue;
 }
 
 div#activity {

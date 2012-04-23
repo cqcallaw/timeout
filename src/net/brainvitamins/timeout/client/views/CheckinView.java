@@ -1,7 +1,9 @@
-package net.brainvitamins.timeout.client;
+package net.brainvitamins.timeout.client.views;
+
+import net.brainvitamins.timeout.client.services.CheckinService;
+import net.brainvitamins.timeout.client.services.CheckinServiceAsync;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.FormElement;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -25,9 +27,6 @@ public class CheckinView extends Composite
 	private CheckinServiceAsync checkinService = GWT
 			.create(CheckinService.class);
 
-	// @UiField
-	// FormElement checkinForm;
-
 	@UiField
 	InputElement timeoutField;
 
@@ -39,8 +38,6 @@ public class CheckinView extends Composite
 		timeoutField.setValue(String.valueOf(value));
 	}
 
-	// TODO: input validation on formAction argument
-	// public CheckinView(String formAction, String method)
 	public CheckinView()
 	{
 		initWidget(uiBinder.createAndBindUi(this));
@@ -49,6 +46,7 @@ public class CheckinView extends Composite
 	@UiHandler("checkinButton")
 	void handleClick(ClickEvent e)
 	{
+		//TODO: push updates to the client faster, for a tighter UI feedback loop
 		long timeout = Long.parseLong(timeoutField.getValue());
 		checkinService.Checkin(timeout, new AsyncCallback<Void>()
 		{
@@ -64,7 +62,7 @@ public class CheckinView extends Composite
 			public void onFailure(Throwable caught)
 			{
 				// TODO Auto-generated method stub
-				RootPanel.get().add(new Label("Error: checkin failed!"));
+				//TODO: notify of checkin failure
 			}
 		});
 	}

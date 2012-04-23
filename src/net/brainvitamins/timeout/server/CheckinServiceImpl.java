@@ -2,7 +2,7 @@ package net.brainvitamins.timeout.server;
 
 import java.util.Date;
 
-import net.brainvitamins.timeout.client.CheckinService;
+import net.brainvitamins.timeout.client.services.CheckinService;
 import net.brainvitamins.timeout.shared.Checkin;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
