@@ -22,7 +22,7 @@
 
 	<servlet-mapping>
 		<servlet-name>checkinServlet</servlet-name>
-		<url-pattern>/hellohello/checkin</url-pattern>
+		<url-pattern>/timeout/checkin</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
@@ -32,7 +32,7 @@
 
 	<servlet-mapping>
 		<servlet-name>timeoutServlet</servlet-name>
-		<url-pattern>/hellohello/timeout</url-pattern>
+		<url-pattern>/timeout/timeout</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
@@ -42,7 +42,7 @@
 
 	<servlet-mapping>
 		<servlet-name>loginService</servlet-name>
-		<url-pattern>/hellohello/login</url-pattern>
+		<url-pattern>/timeout/login</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
@@ -52,7 +52,7 @@
 
 	<servlet-mapping>
 		<servlet-name>activityService</servlet-name>
-		<url-pattern>/hellohello/activity</url-pattern>
+		<url-pattern>/timeout/activity</url-pattern>
 	</servlet-mapping>
 
 	<!-- Default page to serve -->

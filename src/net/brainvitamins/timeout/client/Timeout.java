@@ -28,7 +28,7 @@ import com.google.gwt.view.client.ListDataProvider;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
-public class HelloHello implements EntryPoint
+public class Timeout implements EntryPoint
 {
 	/**
 	 * The message displayed to the user when the server cannot be reached or
@@ -51,7 +51,7 @@ public class HelloHello implements EntryPoint
 	private ActivityServiceAsync activityService = GWT
 			.create(ActivityService.class);
 
-	private static Logger logger = Logger.getLogger("Client");
+	private static Logger logger = Logger.getLogger("Main");
 
 	/**
 	 * This is the entry point method.

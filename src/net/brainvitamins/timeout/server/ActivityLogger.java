@@ -112,7 +112,7 @@ public class ActivityLogger
 
 				// TODO: move this to a RemoteService so we don't have to hardcode the module path
 				TaskOptions taskOptions = TaskOptions.Builder
-						.withUrl("/hellohello/timeout")
+						.withUrl("/timeout/timeout")
 						.countdownMillis(timeout).param("userId", userId)
 						.param("startTime", time)
 						.param("timeout", Long.toString(timeout))
