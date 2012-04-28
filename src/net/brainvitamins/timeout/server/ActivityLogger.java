@@ -1,9 +1,7 @@
 package net.brainvitamins.timeout.server;
 
 import java.security.InvalidParameterException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -13,19 +11,12 @@ import javax.jdo.Query;
 
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Checkin;
-import net.brainvitamins.timeout.shared.Timeout;
 import net.brainvitamins.timeout.shared.User;
 
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.taskqueue.Queue;
-import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.gwt.core.client.GWT;
 
 /*
  * A service designed to log and record user activity to a datastore.
@@ -86,6 +77,7 @@ public class ActivityLogger
 		query.declareParameters("String userIdParam");
 
 		List<Activity> activityLog;
+
 		try
 		{
 			Object rawResults = query.execute(userId);
@@ -110,11 +102,11 @@ public class ActivityLogger
 
 				// TODO: verify the task was actually deleted.
 
-				// TODO: move this to a RemoteService so we don't have to hardcode the module path
+				// TODO: move this to a RemoteService so we don't have to
+				// hardcode the module path
 				TaskOptions taskOptions = TaskOptions.Builder
-						.withUrl("/timeout/timeout")
-						.countdownMillis(timeout).param("userId", userId)
-						.param("startTime", time)
+						.withUrl("/timeout/timeout").countdownMillis(timeout)
+						.param("userId", userId).param("startTime", time)
 						.param("timeout", Long.toString(timeout))
 						.taskName(userId);
 

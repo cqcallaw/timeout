@@ -31,24 +31,27 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 		if (user != null)
 		{
 			// make sure the user exists in the db
-			PersistenceManager pm = PMF.get().getPersistenceManager();
-			Query query = pm.newQuery(User.class);
-			query.setFilter("id == userIdParam");
-			query.declareParameters("String userIdParam");
 
-			try
+			// Query query = pm.newQuery(User.class);
+			// query.setFilter("id == userIdParam");
+			// query.declareParameters("String userIdParam");
+
+			// Object rawResults = query.execute(user.getUserId());
+			// List<User> results = (List<User>) rawResults;
+			User userDataObject = DataOperations.GetCurrentUser();
+			if (userDataObject == null)
 			{
-				Object rawResults = query.execute(user.getUserId());
-				List<User> results = (List<User>) rawResults;
-				if (results.isEmpty())
+				PersistenceManager pm = PMF.get().getPersistenceManager();
+				try
 				{
-					pm.makePersistent(new User(user.getUserId(), user.getNickname()));
+					pm.makePersistent(new User(user.getUserId(), user
+							.getNickname()));
 				}
-			}
-			finally
-			{
-				query.closeAll();
-				pm.close();
+				finally
+				{
+					// query.closeAll();
+					pm.close();
+				}
 			}
 
 			loginInfo.setLoggedIn(true);
