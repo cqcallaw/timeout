@@ -9,39 +9,78 @@ import com.google.appengine.api.users.UserServiceFactory;
 
 public class DataOperations
 {
-	public static User GetCurrentUser()
+	/*
+	 * Returns a detached copy of the current User data object. The activity log and recipient list are not included.
+	 */
+	public static User getCurrentUser()
 	{
-		com.google.appengine.api.users.User user = UserServiceFactory
-				.getUserService().getCurrentUser();
-
-		// TODO: refactor the JDO query that gets the user into a single method
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		// Query query = pm.newQuery(User.class);
-		// query.setFilter("id == userIdParam");
-		// query.declareParameters("String userIdParam");
-		//
-		// Object rawResults = query.execute(user.getUserId());
-		// List<User> results = (List<User>) rawResults;
-		//
-		// // sanity checks
-		// if (results.isEmpty() || results.size() > 1)
-		// {
-		// throw new InvalidParameterException("Invalid user specified");
-		// }
-		//
-		// User currentUser = results.get(0);
-
 		try
 		{
-			User currentUser = pm.getObjectById(User.class, user.getUserId());
-//			if (currentUser == null)
-//				throw new InvalidParameterException("Invalid user specified");
-
-			return currentUser;
+			User currentUser = pm.getObjectById(User.class, getGWTUser().getUserId());
+			User detached = pm.detachCopy(currentUser);
+			return detached;
 		}
 		catch (JDOObjectNotFoundException e)
 		{
 			return null;
 		}
+		finally
+		{
+			pm.close();
+		}
+	}
+
+	/*
+	 * Returns a detached copy of the current user data, with the activity log.
+	 */
+	public static User getCurrentUserWithActivity()
+	{
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try
+		{
+			User currentUser = pm.getObjectById(User.class, getGWTUser().getUserId());
+			currentUser.getActivityLog();
+			
+			User detached = pm.detachCopy(currentUser);
+			return detached;
+		}
+		catch (JDOObjectNotFoundException e)
+		{
+			return null;
+		}
+		finally
+		{
+			pm.close();
+		}
+	}
+
+	/*
+	 * Returns a detached copy of the current user data, with the activity log.
+	 */
+	public static User getCurrentUserWithRecipients()
+	{
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try
+		{
+			User currentUser = pm.getObjectById(User.class, getGWTUser().getUserId());
+			currentUser.getRecipients();
+			
+			User detached = pm.detachCopy(currentUser);
+			return detached;
+		}
+		catch (JDOObjectNotFoundException e)
+		{
+			return null;
+		}
+		finally
+		{
+			pm.close();
+		}
+	}
+	
+	private static com.google.appengine.api.users.User getGWTUser()
+	{
+		return UserServiceFactory.getUserService().getCurrentUser();
 	}
 }

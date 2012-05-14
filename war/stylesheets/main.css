@@ -17,6 +17,7 @@ div#user {
 	text-align: right;
 }
 
+/* TODO: apply these to celltables: https://developers.google.com/web-toolkit/doc/latest/DevGuideUiCustomCells */
 div.checkin {
 	margin: 1px;
 	background-color: lightblue;
@@ -29,4 +30,9 @@ div.timeout {
 
 p.salute {
 	text-align: right;
+}
+
+span.inputLabel {
+	width: 300px;
+	background-color: lightblue;
 }

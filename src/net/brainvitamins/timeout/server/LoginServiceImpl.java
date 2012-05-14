@@ -1,9 +1,6 @@
 package net.brainvitamins.timeout.server;
 
-import java.util.List;
-
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 
 import net.brainvitamins.timeout.client.services.LoginService;
 import net.brainvitamins.timeout.shared.LoginInfo;
@@ -30,15 +27,7 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 
 		if (user != null)
 		{
-			// make sure the user exists in the db
-
-			// Query query = pm.newQuery(User.class);
-			// query.setFilter("id == userIdParam");
-			// query.declareParameters("String userIdParam");
-
-			// Object rawResults = query.execute(user.getUserId());
-			// List<User> results = (List<User>) rawResults;
-			User userDataObject = DataOperations.GetCurrentUser();
+			User userDataObject = DataOperations.getCurrentUser();
 			if (userDataObject == null)
 			{
 				PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -49,7 +38,6 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 				}
 				finally
 				{
-					// query.closeAll();
 					pm.close();
 				}
 			}

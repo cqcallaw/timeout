@@ -4,6 +4,7 @@ import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Checkin;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -12,9 +13,8 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
 
-public class ActivityView extends Composite
+public class ActivityView extends Composite implements CellTableView<Activity>
 {
 
 	private static ActivityUiBinder uiBinder = GWT
@@ -27,7 +27,7 @@ public class ActivityView extends Composite
 	@UiField(provided = true)
 	final CellTable<Activity> activityView;
 
-	public CellTable<Activity> getActivityView()
+	public CellTable<Activity> getCellView()
 	{
 		return activityView;
 	}
@@ -39,15 +39,12 @@ public class ActivityView extends Composite
 		return dateFormat;
 	}
 
-	public ActivityView(final String dateFormat,
-			ListDataProvider<Activity> dataProvider)
+	//TODO: date column sorting (client-side)
+	public ActivityView(final String dateFormat)
 	{
 		if (dateFormat == null || dateFormat.isEmpty())
 			throw new IllegalArgumentException(
 					"dateFormat cannot be empty or null.");
-
-		if (dataProvider == null)
-			throw new IllegalArgumentException("dataProvider cannot be null.");
 
 		this.dateFormat = dateFormat;
 
@@ -96,8 +93,11 @@ public class ActivityView extends Composite
 		activityView.addColumn(typeColumn);
 		activityView.addColumn(timeoutColumn);
 
-		dataProvider.addDataDisplay(activityView);
-
+		activityView.setWidth("100%", true);
+		activityView.setColumnWidth(timestampColumn, 12, Unit.EM);
+		activityView.setColumnWidth(typeColumn, 6, Unit.EM);
+		activityView.setColumnWidth(timeoutColumn, 100, Unit.PCT);
+		
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 }

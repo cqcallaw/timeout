@@ -1,20 +1,15 @@
 package net.brainvitamins.timeout.server;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 
 import net.brainvitamins.timeout.client.services.ActivityService;
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.User;
 
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class ActivityServiceImpl extends RemoteServiceServlet implements
@@ -29,9 +24,21 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 	@Override
 	public List<Activity> getActivityLog(int sizeLimit)
 	{
-		User currentUser = DataOperations.GetCurrentUser();
+		User currentUser = DataOperations.getCurrentUserWithActivity();
 
 		List<Activity> activityLog = new ArrayList<Activity>();
+		
+		if (currentUser == null)
+		{
+			System.out.println("Invalid user!");
+			return activityLog;			
+		}
+		
+		if (currentUser.getActivityLog() == null)
+		{
+			System.out.println("No activity found for " + currentUser.getNickname());
+			return activityLog;
+		}
 
 		Collections.sort(currentUser.getActivityLog(),
 				new Comparator<Activity>()

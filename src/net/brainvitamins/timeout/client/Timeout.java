@@ -8,10 +8,12 @@ import net.brainvitamins.timeout.client.services.ActivityService;
 import net.brainvitamins.timeout.client.services.ActivityServiceAsync;
 import net.brainvitamins.timeout.client.services.LoginService;
 import net.brainvitamins.timeout.client.services.LoginServiceAsync;
-import net.brainvitamins.timeout.client.views.Main;
-import net.brainvitamins.timeout.shared.Checkin;
+import net.brainvitamins.timeout.client.services.RecipientService;
+import net.brainvitamins.timeout.client.services.RecipientServiceAsync;
+import net.brainvitamins.timeout.client.views.MainView;
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.LoginInfo;
+import net.brainvitamins.timeout.shared.Recipient;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -19,7 +21,6 @@ import com.google.gwt.i18n.shared.DefaultDateTimeFormatInfo;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -50,6 +51,9 @@ public class Timeout implements EntryPoint
 
 	private ActivityServiceAsync activityService = GWT
 			.create(ActivityService.class);
+
+	private RecipientServiceAsync recipientService = GWT
+			.create(RecipientService.class);
 
 	private static Logger logger = Logger.getLogger("Main");
 
@@ -106,16 +110,30 @@ public class Timeout implements EntryPoint
 				dateFormatInfo.dateFormatShort());
 
 		final ListDataProvider<Activity> activityDataProvider = new ListDataProvider<Activity>();
-		final Main homeView = new Main(dateFormat, activityDataProvider);
+		final ListDataProvider<Recipient> recipientDataProvider = new ListDataProvider<Recipient>();
+
+		// final MainView homeView = new MainView(dateFormat,
+		// activityDataProvider, recipientDataProvider);
+
+		// ugh, so wrong and backwards to initialize a view without having data
+		// attached...
+		// visual layout editing fails otherwise, though
+		// need a wrapper class of some kind
+		final MainView homeView = new MainView(dateFormat);
+		activityDataProvider.addDataDisplay(homeView.getActivityView()
+				.getCellView());
+		recipientDataProvider.addDataDisplay(homeView.getRecipientView()
+				.getCellView());
 
 		RootPanel.get("content").add(homeView);
 
 		refreshActivity(activityDataProvider);
 
+		refreshRecipients(recipientDataProvider);
+
 		logger.log(Level.INFO, "App loaded.");
-		
-		// refresh
-		Timer refreshTimer = new Timer()
+
+		Timer activityRefreshTimer = new Timer()
 		{
 			@Override
 			public void run()
@@ -124,7 +142,46 @@ public class Timeout implements EntryPoint
 			}
 		};
 
-		refreshTimer.scheduleRepeating(REFRESH_INTERVAL);
+		// TODO: jitter the intervals
+		activityRefreshTimer.scheduleRepeating(REFRESH_INTERVAL);
+
+		Timer recipientRefreshTimer = new Timer()
+		{
+			@Override
+			public void run()
+			{
+				// TODO: locking so the list doesn't get hammered by multiple
+				// updates
+				refreshRecipients(recipientDataProvider);
+			}
+		};
+
+		recipientRefreshTimer.scheduleRepeating(REFRESH_INTERVAL);
+	}
+
+	private void refreshRecipients(
+			final ListDataProvider<Recipient> dataProvider)
+	{
+		recipientService.getRecipients(new AsyncCallback<List<Recipient>>()
+		{
+
+			@Override
+			public void onSuccess(List<Recipient> result)
+			{
+				List<Recipient> list = dataProvider.getList();
+				list.clear();
+				for (Recipient activity : result)
+				{
+					list.add(activity);
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable caught)
+			{
+				// TODO:
+			}
+		});
 	}
 
 	/**
@@ -138,8 +195,7 @@ public class Timeout implements EntryPoint
 			@Override
 			public void onFailure(Throwable caught)
 			{
-				// TODO Auto-generated method stub
-
+				// TODO:
 			}
 
 			@Override

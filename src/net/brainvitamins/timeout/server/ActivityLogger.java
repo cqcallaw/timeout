@@ -1,13 +1,11 @@
 package net.brainvitamins.timeout.server;
 
-import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Checkin;
@@ -72,25 +70,14 @@ public class ActivityLogger
 		String time = dateFormat.format(timestamp);
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Query query = pm.newQuery(User.class);
-		query.setFilter("id == userIdParam");
-		query.declareParameters("String userIdParam");
 
 		List<Activity> activityLog;
 
 		try
 		{
-			Object rawResults = query.execute(userId);
+			User currentUser = pm.getObjectById(User.class, userId);
 
-			List<User> results = (List<User>) rawResults;
-
-			// sanity checks
-			if (results.isEmpty() || results.size() > 1)
-			{
-				throw new InvalidParameterException("Invalid user specified");
-			}
-
-			activityLog = results.get(0).getActivityLog();
+			activityLog = currentUser.getActivityLog();
 
 			if (activity.getClass().equals(Checkin.class))
 			{
@@ -102,7 +89,7 @@ public class ActivityLogger
 
 				// TODO: verify the task was actually deleted.
 
-				// TODO: move this to a RemoteService so we don't have to
+				// TODO: figure out a way to avoid hardcoding the module path
 				// hardcode the module path
 				TaskOptions taskOptions = TaskOptions.Builder
 						.withUrl("/timeout/timeout").countdownMillis(timeout)
@@ -121,7 +108,6 @@ public class ActivityLogger
 		}
 		finally
 		{
-			query.closeAll();
 			pm.close();
 		}
 	}

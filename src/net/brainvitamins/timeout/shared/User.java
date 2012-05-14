@@ -5,11 +5,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.jdo.annotations.FetchGroup;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-@PersistenceCapable
+@PersistenceCapable(detachable = "true")
+@FetchGroup(name = "withRecipients", members = { @Persistent(name = "recipients") })
 public class User
 {
 	@PrimaryKey
@@ -17,10 +19,10 @@ public class User
 
 	private String nickname;
 
-	@Persistent
+	@Persistent(dependentElement = "true")
 	private List<Activity> activityLog;
 
-	@Persistent
+	@Persistent(dependentElement = "true")
 	private Set<Recipient> recipients;
 
 	/**
@@ -49,6 +51,8 @@ public class User
 	 */
 	public Set<Recipient> getRecipients()
 	{
+		// this data model does not share recipients between users.
+		// this may prove inefficient at scale.
 		return recipients;
 	}
 

@@ -55,6 +55,16 @@
 		<url-pattern>/timeout/activity</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>recipientService</servlet-name>
+		<servlet-class>net.brainvitamins.timeout.server.RecipientServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>recipientService</servlet-name>
+		<url-pattern>/timeout/recipient</url-pattern>
+	</servlet-mapping>
+
 	<!-- Default page to serve -->
 	<welcome-file-list>
 		<!-- <welcome-file>landing.jsp</welcome-file> -->

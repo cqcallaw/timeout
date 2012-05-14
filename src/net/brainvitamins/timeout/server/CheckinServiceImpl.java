@@ -25,6 +25,7 @@ public class CheckinServiceImpl extends RemoteServiceServlet implements
 			throw new IllegalArgumentException(
 					"Parameter timeout cannot be less than one (was it defined?)");
 
+		System.out.println("Checkin");
 		Constants.ACTIVITYSERVICE.logActivity(new Checkin(timestamp, timeout));
 	}
 }

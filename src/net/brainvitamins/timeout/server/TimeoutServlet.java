@@ -47,6 +47,8 @@ public class TimeoutServlet extends HttpServlet
 
 			Constants.ACTIVITYSERVICE.logActivity(userId, new Timeout(
 					new Date(), timeout, startTime));
+			
+			System.out.println("Timeout logged.");
 		}
 		catch (ParseException e)
 		{

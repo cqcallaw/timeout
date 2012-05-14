@@ -1,21 +1,16 @@
 package net.brainvitamins.timeout.server;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import javax.jdo.PersistenceManager;
 
 import net.brainvitamins.timeout.client.services.RecipientService;
 import net.brainvitamins.timeout.shared.Recipient;
+import net.brainvitamins.timeout.shared.User;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.taskqueue.QueueFactory;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -27,37 +22,78 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	private static final long serialVersionUID = 6581374344337957491L;
-	
+
 	public static final String recipientKindIdentifier = "Recipient";
 
 	@Override
-	public void addRecipient()
+	public void addRecipient(Recipient recipient)
 	{
-		// TODO Auto-generated method stub
+		com.google.appengine.api.users.User user = UserServiceFactory
+				.getUserService().getCurrentUser();
 
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+
+		try
+		{
+			User currentUser = pm.getObjectById(User.class, user.getUserId());
+			currentUser.getRecipients().add(recipient);
+		}
+		finally
+		{
+			pm.close();
+		}
 	}
 
 	@Override
 	public List<Recipient> getRecipients()
 	{
-		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		
-		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
+		List<Recipient> result = new ArrayList<Recipient>(DataOperations
+				.getCurrentUserWithRecipients().getRecipients());
 
-		String userId = user.getUserId();
-		
-		Key recipientStoreKey = KeyFactory.createKey(recipientKindIdentifier, userId);
-		
-		Query query = new Query(recipientKindIdentifier, recipientStoreKey);
+		// sort by name, descending
+		Collections.sort(result, new Comparator<Recipient>()
+		{
+			@Override
+			public int compare(Recipient o1, Recipient o2)
+			{
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
 
-		List<Entity> activityEntries = datastore.prepare(query).asList(FetchOptions.Builder.withDefaults());
-		
-		List<Recipient> recipients = new ArrayList<Recipient>(); 
-
-		
-		
-		return recipients;
+		return result;
 	}
 
+	@Override
+	public boolean removeRecipient(Recipient recipient)
+	{
+		com.google.appengine.api.users.User user = UserServiceFactory
+				.getUserService().getCurrentUser();
+
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		pm.getFetchPlan().addGroup("withRecipients");
+
+		try
+		{
+			User currentUser = pm.getObjectById(User.class, user.getUserId());
+
+			Recipient ref = null;
+			boolean result = false;
+
+			for (Recipient r : currentUser.getRecipients())
+			{
+				if (r.equals(recipient)) ref = r;
+			}
+
+			if (ref != null)
+			{
+				result = currentUser.getRecipients().remove(ref);
+			}
+
+			return result;
+		}
+		finally
+		{
+			pm.close();
+		}
+	}
 }

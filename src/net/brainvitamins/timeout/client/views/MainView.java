@@ -1,28 +1,42 @@
 package net.brainvitamins.timeout.client.views;
 
-import net.brainvitamins.timeout.shared.Activity;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiFactory;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
 
-public class Main extends Composite
+public class MainView extends Composite
 {
 
 	private static HomeUiBinder uiBinder = GWT.create(HomeUiBinder.class);
 
-	interface HomeUiBinder extends UiBinder<Widget, Main>
+	interface HomeUiBinder extends UiBinder<Widget, MainView>
 	{
 	}
 
-	private ListDataProvider<Activity> activityDataProvider;
-
 	@UiField
 	ActivityView activityView;
+
+	/**
+	 * @return the activityView
+	 */
+	public ActivityView getActivityView()
+	{
+		return activityView;
+	}
+
+	@UiField
+	RecipientListView recipientView;
+
+	/**
+	 * @return the recipientView
+	 */
+	public RecipientListView getRecipientView()
+	{
+		return recipientView;
+	}
 
 	@UiField
 	CheckinView checkinView = new CheckinView();
@@ -34,11 +48,9 @@ public class Main extends Composite
 		return dateFormat;
 	}
 
-	public Main(final String dateFormat,
-			ListDataProvider<Activity> activityDataProvider)
+	public MainView(final String dateFormat)
 	{
 		this.dateFormat = dateFormat;
-		this.activityDataProvider = activityDataProvider;
 
 		initWidget(uiBinder.createAndBindUi(this));
 	}
@@ -46,9 +58,6 @@ public class Main extends Composite
 	@UiFactory
 	protected ActivityView getActivity()
 	{
-		if (activityDataProvider == null)
-			throw new IllegalStateException(
-					"Cannot initialize activity without activity data provider.");
-		return new ActivityView(dateFormat, activityDataProvider);
+		return new ActivityView(dateFormat);
 	}
 }
