@@ -32,8 +32,21 @@ public class Checkin extends Activity implements Serializable
 		super(timestamp);
 
 		if (timeout < 1)
-			throw new IllegalArgumentException("Timeout cannot be less than one");
-		
+			throw new IllegalArgumentException(
+					"Timeout cannot be less than one");
+
 		this.timeout = timeout;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return "Checkin [timestamp=" + getTimestamp() + ", timeout=" + timeout
+				+ "]";
 	}
 }

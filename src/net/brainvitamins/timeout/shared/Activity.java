@@ -13,13 +13,13 @@ import javax.jdo.annotations.PrimaryKey;
 
 //TODO: investigate why this caused problems when it wasn't serializable
 @PersistenceCapable
-@Discriminator(strategy=DiscriminatorStrategy.CLASS_NAME)
+@Discriminator(strategy = DiscriminatorStrategy.CLASS_NAME)
 public abstract class Activity implements Serializable
 {
 	@SuppressWarnings("unused")
 	@PrimaryKey
-    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-    @Extension(vendorName="datanucleus", key="gae.encoded-pk", value="true")
+	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+	@Extension(vendorName = "datanucleus", key = "gae.encoded-pk", value = "true")
 	private String key;
 
 	/**
@@ -46,5 +46,16 @@ public abstract class Activity implements Serializable
 			throw new IllegalArgumentException("Timestamp cannot be null.");
 
 		this.timestamp = timestamp;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return "Activity [timestamp=" + timestamp + "]";
 	}
 }

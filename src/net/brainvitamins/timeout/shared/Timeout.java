@@ -41,4 +41,16 @@ public class Timeout extends Activity implements Serializable
 		this.timeout = timeout;
 		this.startTime = startTime;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return "Timeout [timestamp=" + getTimestamp() + ", timeout=" + timeout
+				+ ", startTime=" + startTime + "]";
+	}
 }

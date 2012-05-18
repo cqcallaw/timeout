@@ -9,7 +9,7 @@ public class ActivityLogger
 {
 	public void logActivity(String userId, Activity activity)
 	{
-		System.out.println("Logging activity " + activity.toString());
+		System.out.println("Logging " + activity.toString());
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		pm.getFetchPlan().addGroup("withActivityLog");
 		try
