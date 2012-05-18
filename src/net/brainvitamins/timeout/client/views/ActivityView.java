@@ -10,6 +10,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
@@ -39,7 +40,7 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 		return dateFormat;
 	}
 
-	//TODO: date column sorting (client-side)
+	// TODO: date column sorting (client-side)
 	public ActivityView(final String dateFormat)
 	{
 		if (dateFormat == null || dateFormat.isEmpty())
@@ -50,6 +51,9 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 
 		activityView = new CellTable<Activity>();
 		activityView.setEmptyTableWidget(new Label("No recent activity"));
+
+		activityView
+				.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
 
 		TextColumn<Activity> timestampColumn = new TextColumn<Activity>()
 		{
@@ -97,7 +101,7 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 		activityView.setColumnWidth(timestampColumn, 12, Unit.EM);
 		activityView.setColumnWidth(typeColumn, 6, Unit.EM);
 		activityView.setColumnWidth(timeoutColumn, 100, Unit.PCT);
-		
+
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 }

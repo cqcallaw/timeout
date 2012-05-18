@@ -13,7 +13,6 @@ import javax.jdo.annotations.PrimaryKey;
 
 //TODO: investigate why this caused problems when it wasn't serializable
 @PersistenceCapable
-//@Inheritance(strategy = InheritanceStrategy.SUBCLASS_TABLE)
 @Discriminator(strategy=DiscriminatorStrategy.CLASS_NAME)
 public abstract class Activity implements Serializable
 {

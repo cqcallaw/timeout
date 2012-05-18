@@ -4,9 +4,11 @@
 	<g:VerticalPanel horizontalAlignment="ALIGN_LEFT">
 		<e:EmailRecipientEditor ui:field="editor" />
 		<g:Cell horizontalAlignment="ALIGN_RIGHT">
-			<g:VerticalPanel horizontalAlignment="ALIGN_RIGHT">
-			<g:Button ui:field="okButton" text="OK" styleName="okButton" />
-		</g:VerticalPanel>
+			<g:HorizontalPanel horizontalAlignment="ALIGN_RIGHT" verticalAlignment="ALIGN_BOTTOM">
+				<g:Button ui:field="okButton" text="OK" />
+				<g:Button ui:field="cancelButton" text="Cancel" />
+			</g:HorizontalPanel>
 		</g:Cell>
+		<g:Label ui:field="errorLabel" width="215px" styleName="error-Label"/>
 	</g:VerticalPanel>
 </ui:UiBinder>

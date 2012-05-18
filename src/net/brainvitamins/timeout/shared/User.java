@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.Set;
 
 import javax.jdo.annotations.FetchGroup;
+import javax.jdo.annotations.FetchGroups;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable(detachable = "true")
-@FetchGroup(name = "withRecipients", members = { @Persistent(name = "recipients") })
+@FetchGroups({
+		@FetchGroup(name = "withRecipients", members = { @Persistent(name = "recipients") }),
+		@FetchGroup(name = "withActivityLog", members = { @Persistent(name = "activityLog") }) })
 public class User
 {
 	@PrimaryKey

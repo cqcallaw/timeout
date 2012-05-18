@@ -6,10 +6,13 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.jdo.PersistenceManager;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
-import net.brainvitamins.timeout.client.services.RecipientService;
+import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
 import net.brainvitamins.timeout.shared.User;
+import net.brainvitamins.timeout.shared.services.RecipientService;
 
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -27,7 +30,16 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void addRecipient(Recipient recipient)
+			throws IllegalArgumentException
 	{
+		// validation
+		if (recipient.getName() == null)
+			throw new IllegalArgumentException("Name cannot be null.");
+
+		if (recipient.getName().equals(""))
+			throw new IllegalArgumentException(
+					"Name cannot be empty.");
+
 		com.google.appengine.api.users.User user = UserServiceFactory
 				.getUserService().getCurrentUser();
 
@@ -79,6 +91,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 			Recipient ref = null;
 			boolean result = false;
 
+			// ref: http://stackoverflow.com/a/10577552/577298
 			for (Recipient r : currentUser.getRecipients())
 			{
 				if (r.equals(recipient)) ref = r;
@@ -95,5 +108,27 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		{
 			pm.close();
 		}
+	}
+
+	@Override
+	public void addRecipient(EmailRecipient recipient)
+			throws IllegalArgumentException
+	{
+		try
+		{
+			new InternetAddress(recipient.getAddress());
+		}
+		catch (AddressException e)
+		{
+			throw new IllegalArgumentException("Invalid email address.");
+		}
+
+		//TODO: send confirmation email
+		//TODO: handle email failure modes:
+		//-delivery fails
+		//-delivery fails remotely (initial send is a success)
+		//-delivery succeeds but adding the recipient to the app engine database fails
+
+		addRecipient((Recipient) recipient);
 	}
 }

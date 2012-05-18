@@ -15,15 +15,15 @@
 	<!-- <url-pattern>/presence_poll/greet</url-pattern> -->
 	<!-- </servlet-mapping> -->
 
-	<servlet>
-		<servlet-name>checkinServlet</servlet-name>
-		<servlet-class>net.brainvitamins.timeout.server.CheckinServiceImpl</servlet-class>
-	</servlet>
+<!-- 	<servlet> -->
+<!-- 		<servlet-name>checkinServlet</servlet-name> -->
+<!-- 		<servlet-class>net.brainvitamins.timeout.server.CheckinServiceImpl</servlet-class> -->
+<!-- 	</servlet> -->
 
-	<servlet-mapping>
-		<servlet-name>checkinServlet</servlet-name>
-		<url-pattern>/timeout/checkin</url-pattern>
-	</servlet-mapping>
+<!-- 	<servlet-mapping> -->
+<!-- 		<servlet-name>checkinServlet</servlet-name> -->
+<!-- 		<url-pattern>/timeout/checkin</url-pattern> -->
+<!-- 	</servlet-mapping> -->
 
 	<servlet>
 		<servlet-name>timeoutServlet</servlet-name>

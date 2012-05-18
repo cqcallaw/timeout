@@ -1,4 +1,4 @@
-package net.brainvitamins.timeout.client;
+package net.brainvitamins.timeout.client.editors;
 
 import net.brainvitamins.timeout.shared.EmailRecipient;
 
@@ -24,8 +24,10 @@ public class EmailRecipientProxy
 
 	public void setName(String name)
 	{
-		result = new EmailRecipient(name, result.isVerified(),
-				result.getAddress());
+		//strip any markup out
+		if (!(name == null))
+			result = new EmailRecipient(name, result.isVerified(),
+					result.getAddress());
 	}
 
 	public String getAddress()
@@ -35,13 +37,14 @@ public class EmailRecipientProxy
 
 	public void setAddress(String address)
 	{
-		result = new EmailRecipient(result.getName(), result.isVerified(),
-				address);
+		if (!(address == null))
+			result = new EmailRecipient(result.getName(), result.isVerified(),
+					address);
 	}
 
 	public EmailRecipientProxy()
 	{
-		this(new EmailRecipient());
+		this(new EmailRecipient("", false));
 	}
 
 	public EmailRecipientProxy(EmailRecipient result)

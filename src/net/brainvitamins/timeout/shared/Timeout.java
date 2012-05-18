@@ -7,7 +7,6 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
 @PersistenceCapable
-// @Inheritance(strategy = InheritanceStrategy.SUBCLASS_TABLE)
 public class Timeout extends Activity implements Serializable
 {
 	/**

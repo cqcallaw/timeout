@@ -1,8 +1,9 @@
-package net.brainvitamins.timeout.client.services;
+package net.brainvitamins.timeout.shared.services;
 
 
 import java.util.List;
 
+import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -10,7 +11,9 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("recipient")
 public interface RecipientService extends RemoteService
 {
-	public void addRecipient(Recipient recipient);
+	public void addRecipient(Recipient recipient) throws IllegalArgumentException;
+	
+	public void addRecipient(EmailRecipient recipient) throws IllegalArgumentException;
 
 	public boolean removeRecipient(Recipient recipient);
 

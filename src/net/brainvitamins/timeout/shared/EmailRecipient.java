@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
+import javax.validation.constraints.NotNull;
 
 @PersistenceCapable
 public class EmailRecipient extends Recipient implements Serializable
@@ -26,17 +27,22 @@ public class EmailRecipient extends Recipient implements Serializable
 		this("", false, "");
 	}
 
-	public EmailRecipient(String name, boolean verified)
+	public EmailRecipient(@NotNull String name, boolean verified)
 	{
 		this(name, verified, "");
 	}
 
-	public EmailRecipient(String name, boolean verified, String address)
+	public EmailRecipient(@NotNull String name, boolean verified,
+			@NotNull String address)
 	{
 		super(name, verified);
+
+		if (address == null)
+			throw new IllegalArgumentException("Address can't be null");
+
 		this.address = address;
 	}
-
+	
 	@Override
 	public boolean equals(Object other)
 	{

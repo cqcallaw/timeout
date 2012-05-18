@@ -1,15 +1,22 @@
 package net.brainvitamins.timeout.server;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
-import net.brainvitamins.timeout.client.services.ActivityService;
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.User;
+import net.brainvitamins.timeout.shared.services.ActivityService;
 
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class ActivityServiceImpl extends RemoteServiceServlet implements
@@ -24,19 +31,24 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 	@Override
 	public List<Activity> getActivityLog(int sizeLimit)
 	{
+		if (sizeLimit < 1)
+			throw new IllegalArgumentException(
+					"sizeLimit must greater than or equal to 1.");
+
 		User currentUser = DataOperations.getCurrentUserWithActivity();
 
 		List<Activity> activityLog = new ArrayList<Activity>();
-		
+
 		if (currentUser == null)
 		{
 			System.out.println("Invalid user!");
-			return activityLog;			
+			return activityLog;
 		}
-		
+
 		if (currentUser.getActivityLog() == null)
 		{
-			System.out.println("No activity found for " + currentUser.getNickname());
+			System.out.println("No activity found for "
+					+ currentUser.getNickname());
 			return activityLog;
 		}
 
@@ -67,5 +79,50 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 		}
 
 		return activityLog;
+	}
+
+	@Override
+	public void checkin(long timeout)
+	{
+		if (timeout < 1)
+			throw new IllegalArgumentException(
+					"Parameter timeout cannot be less than one (was it defined?)");
+
+		Date timestamp = new Date();
+
+		Checkin checkin = new Checkin(timestamp, timeout);
+
+		com.google.appengine.api.users.User user = UserServiceFactory
+				.getUserService().getCurrentUser();
+
+		Queue queue = QueueFactory.getDefaultQueue();
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat(
+				Constants.INTERNALDATEFORMAT);
+		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		String time = dateFormat.format(timestamp);
+		String userId = user.getUserId();
+
+		// cancel active timeout
+		queue.deleteTask(userId);
+
+		// TODO: verify the task was actually deleted.
+
+		// TODO: figure out a way to avoid hardcoding the module path
+		// hardcode the module path
+		TaskOptions taskOptions = TaskOptions.Builder
+				.withUrl("/timeout/timeout").countdownMillis(timeout)
+				.param("userId", userId).param("startTime", time)
+				.param("timeout", Long.toString(timeout)).taskName(userId);
+
+		queue.add(taskOptions);
+
+		Constants.ACTIVITYLOGGER.logActivity(userId, checkin);
+	}
+
+	@Override
+	public void cancel(Checkin checkin)
+	{
 	}
 }

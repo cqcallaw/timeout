@@ -4,16 +4,16 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.brainvitamins.timeout.client.services.ActivityService;
-import net.brainvitamins.timeout.client.services.ActivityServiceAsync;
-import net.brainvitamins.timeout.client.services.LoginService;
-import net.brainvitamins.timeout.client.services.LoginServiceAsync;
-import net.brainvitamins.timeout.client.services.RecipientService;
-import net.brainvitamins.timeout.client.services.RecipientServiceAsync;
 import net.brainvitamins.timeout.client.views.MainView;
+import net.brainvitamins.timeout.shared.services.ActivityService;
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.LoginInfo;
 import net.brainvitamins.timeout.shared.Recipient;
+import net.brainvitamins.timeout.shared.services.ActivityServiceAsync;
+import net.brainvitamins.timeout.shared.services.LoginService;
+import net.brainvitamins.timeout.shared.services.LoginServiceAsync;
+import net.brainvitamins.timeout.shared.services.RecipientService;
+import net.brainvitamins.timeout.shared.services.RecipientServiceAsync;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;

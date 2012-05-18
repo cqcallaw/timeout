@@ -7,7 +7,6 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
 @PersistenceCapable
-//@Inheritance(strategy = InheritanceStrategy.SUBCLASS_TABLE)
 public class Checkin extends Activity implements Serializable
 {
 	/**
@@ -25,12 +24,16 @@ public class Checkin extends Activity implements Serializable
 
 	public Checkin()
 	{
-		this(new Date(), 0);
+		this(new Date(), 1);
 	}
 
 	public Checkin(Date timestamp, long timeout)
 	{
 		super(timestamp);
+
+		if (timeout < 1)
+			throw new IllegalArgumentException("Timeout cannot be less than one");
+		
 		this.timeout = timeout;
 	}
 }

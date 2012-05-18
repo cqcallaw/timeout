@@ -3,9 +3,9 @@ package net.brainvitamins.timeout.client.views;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.brainvitamins.timeout.client.services.RecipientService;
-import net.brainvitamins.timeout.client.services.RecipientServiceAsync;
 import net.brainvitamins.timeout.shared.Recipient;
+import net.brainvitamins.timeout.shared.services.RecipientService;
+import net.brainvitamins.timeout.shared.services.RecipientServiceAsync;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
@@ -17,8 +17,6 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.safehtml.shared.SafeUri;
-import com.google.gwt.safehtml.shared.UriUtils;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**

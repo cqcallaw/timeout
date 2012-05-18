@@ -1,4 +1,4 @@
-package net.brainvitamins.timeout.client.services;
+package net.brainvitamins.timeout.shared.services;
 
 import net.brainvitamins.timeout.shared.LoginInfo;
 

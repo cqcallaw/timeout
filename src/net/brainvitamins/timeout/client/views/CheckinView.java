@@ -1,7 +1,7 @@
 package net.brainvitamins.timeout.client.views;
 
-import net.brainvitamins.timeout.client.services.CheckinService;
-import net.brainvitamins.timeout.client.services.CheckinServiceAsync;
+import net.brainvitamins.timeout.shared.services.ActivityService;
+import net.brainvitamins.timeout.shared.services.ActivityServiceAsync;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.InputElement;
@@ -22,8 +22,8 @@ public class CheckinView extends Composite
 	{
 	}
 
-	private CheckinServiceAsync checkinService = GWT
-			.create(CheckinService.class);
+	private ActivityServiceAsync activityService = GWT
+			.create(ActivityService.class);
 
 	@UiField
 	InputElement timeoutField;
@@ -44,9 +44,10 @@ public class CheckinView extends Composite
 	@UiHandler("checkinButton")
 	void handleClick(ClickEvent e)
 	{
-		//TODO: push updates to the client faster, for a tighter UI feedback loop
+		// TODO: push updates to the client faster, for a tighter UI feedback
+		// loop
 		long timeout = Long.parseLong(timeoutField.getValue());
-		checkinService.Checkin(timeout, new AsyncCallback<Void>()
+		activityService.checkin(timeout, new AsyncCallback<Void>()
 		{
 
 			@Override
@@ -60,7 +61,7 @@ public class CheckinView extends Composite
 			public void onFailure(Throwable caught)
 			{
 				// TODO Auto-generated method stub
-				//TODO: notify of checkin failure
+				// TODO: notify of checkin failure
 			}
 		});
 	}

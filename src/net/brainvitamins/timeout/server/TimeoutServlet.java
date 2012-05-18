@@ -41,14 +41,13 @@ public class TimeoutServlet extends HttpServlet
 
 		try
 		{
-			SimpleDateFormat format = new SimpleDateFormat(Constants.DATEFORMAT);
+			SimpleDateFormat format = new SimpleDateFormat(
+					Constants.INTERNALDATEFORMAT);
 			format.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Date startTime = format.parse(startTimeParameter);
 
-			Constants.ACTIVITYSERVICE.logActivity(userId, new Timeout(
+			Constants.ACTIVITYLOGGER.logActivity(userId, new Timeout(
 					new Date(), timeout, startTime));
-			
-			System.out.println("Timeout logged.");
 		}
 		catch (ParseException e)
 		{

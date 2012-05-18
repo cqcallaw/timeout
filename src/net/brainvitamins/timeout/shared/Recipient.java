@@ -9,6 +9,7 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.validation.constraints.NotNull;
 
 @PersistenceCapable
 // @Inheritance(strategy = InheritanceStrategy.SUBCLASS_TABLE)
@@ -51,14 +52,16 @@ public abstract class Recipient implements Serializable
 		this("", false);
 	}
 
-	public Recipient(String name)
+	public Recipient(@NotNull String name)
 	{
 		this(name, false);
 	}
 
-	public Recipient(String name, boolean verified)
+	public Recipient(@NotNull String name, boolean verified)
 	{
-		super();
+		if (name == null)
+			throw new IllegalArgumentException("Name can't be null");
+
 		this.verified = verified;
 		this.name = name;
 	}

@@ -1,6 +1,5 @@
 package net.brainvitamins.timeout.client.editors;
 
-import net.brainvitamins.timeout.client.EmailRecipientProxy;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.Editor;
@@ -20,11 +19,9 @@ public class EmailRecipientEditor extends Composite implements
 	 */
 	private static final long serialVersionUID = 7451050279366185561L;
 
-	private static Binder uiBinder = GWT
-			.create(Binder.class);
+	private static Binder uiBinder = GWT.create(Binder.class);
 
-	interface Binder extends
-			UiBinder<Widget, EmailRecipientEditor>
+	interface Binder extends UiBinder<Widget, EmailRecipientEditor>
 	{
 	}
 
@@ -41,6 +38,22 @@ public class EmailRecipientEditor extends Composite implements
 
 	public EmailRecipientEditor()
 	{
+		nameEditor.setFocus(true);
 		initWidget(uiBinder.createAndBindUi(this));
+	}
+
+	/*
+	 * Lock input fields to prevent further changes (unless unlocked)
+	 */
+	public void lockInput()
+	{
+		nameEditor.setEnabled(false);
+		addressEditor.setEnabled(false);
+	}
+	
+	public void unlockInput()
+	{
+		nameEditor.setEnabled(true);
+		addressEditor.setEnabled(true);	
 	}
 }
