@@ -2,6 +2,9 @@ package net.brainvitamins.timeout.shared;
 
 import java.io.Serializable;
 
+import javax.jdo.annotations.PersistenceCapable;
+
+@PersistenceCapable
 public class Cancellation extends Activity implements Serializable
 {
 	/**
@@ -9,15 +12,26 @@ public class Cancellation extends Activity implements Serializable
 	 */
 	private static final long serialVersionUID = -3820185349208627784L;
 
-	private Checkin subject;
-
-	public Checkin getSubject()
+	// ref:
+	// http://groups.google.com/group/google-appengine-java/browse_thread/thread/f09cf3f98308cb91
+	public Cancellation()
 	{
-		return subject;
 	}
 
-	public Cancellation(Checkin subject)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
 	{
-		this.subject = subject;
+		return "Cancellation [timestamp=" + getTimestamp() + "]";
+	}
+
+	@Override
+	public String getTypeName()
+	{
+		return "Cancellation";
 	}
 }

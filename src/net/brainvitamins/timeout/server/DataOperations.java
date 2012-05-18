@@ -37,10 +37,10 @@ public class DataOperations
 	public static User getCurrentUserWithActivity()
 	{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
+		pm.getFetchPlan().addGroup("withActivityLog");
 		try
 		{
 			User currentUser = pm.getObjectById(User.class, getGWTUser().getUserId());
-			currentUser.getActivityLog();
 			
 			User detached = pm.detachCopy(currentUser);
 			return detached;
@@ -61,10 +61,10 @@ public class DataOperations
 	public static User getCurrentUserWithRecipients()
 	{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
+		pm.getFetchPlan().addGroup("withRecipients");
 		try
 		{
 			User currentUser = pm.getObjectById(User.class, getGWTUser().getUserId());
-			currentUser.getRecipients();
 			
 			User detached = pm.detachCopy(currentUser);
 			return detached;

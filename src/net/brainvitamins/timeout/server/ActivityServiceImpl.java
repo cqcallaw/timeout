@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import net.brainvitamins.timeout.shared.Activity;
+import net.brainvitamins.timeout.shared.Cancellation;
 import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.User;
 import net.brainvitamins.timeout.shared.services.ActivityService;
@@ -16,12 +17,15 @@ import net.brainvitamins.timeout.shared.services.ActivityService;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
+import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class ActivityServiceImpl extends RemoteServiceServlet implements
 		ActivityService
 {
+	private Queue queue = QueueFactory.getDefaultQueue();
+	private UserService userService = UserServiceFactory.getUserService();
 
 	/**
 	 * 
@@ -89,25 +93,16 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 					"Parameter timeout cannot be less than one (was it defined?)");
 
 		Date timestamp = new Date();
-
 		Checkin checkin = new Checkin(timestamp, timeout);
-
-		com.google.appengine.api.users.User user = UserServiceFactory
-				.getUserService().getCurrentUser();
-
-		Queue queue = QueueFactory.getDefaultQueue();
-
+		com.google.appengine.api.users.User user = userService.getCurrentUser();
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
 				Constants.INTERNALDATEFORMAT);
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
 		String time = dateFormat.format(timestamp);
 		String userId = user.getUserId();
 
 		// cancel active timeout
-		queue.deleteTask(userId);
-
-		// TODO: verify the task was actually deleted.
+		cancelCheckin(userId);
 
 		// TODO: figure out a way to avoid hardcoding the module path
 		// hardcode the module path
@@ -122,7 +117,37 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 	}
 
 	@Override
-	public void cancel(Checkin checkin)
+	public void cancelCheckin() throws IllegalStateException
 	{
+		User user = DataOperations.getCurrentUserWithActivity();
+		String userId = user.getUserId();
+
+		cancelCheckin(userId);
+		List<Activity> activityLog = user.getActivityLog();
+
+		if (activityLog.size() > 0)
+		{
+			Activity lastActivity = activityLog.get(activityLog.size() - 1);
+			if (lastActivity instanceof Checkin)
+			{
+				Constants.ACTIVITYLOGGER.logActivity(userId, new Cancellation());
+			}
+			else
+			{
+				throw new IllegalStateException(
+						"Cannot cancel checkin if no checkin is active.");
+			}
+		}
+		else
+		{
+			throw new IllegalStateException(
+					"Cannot cancel checkin on an empty activity log.");
+		}
+	}
+
+	private void cancelCheckin(String userId)
+	{
+		// TODO: verify the task was actually deleted.
+		queue.deleteTask(userId);
 	}
 }

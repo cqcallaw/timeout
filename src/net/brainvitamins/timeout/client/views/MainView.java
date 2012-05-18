@@ -38,9 +38,6 @@ public class MainView extends Composite
 		return recipientView;
 	}
 
-	@UiField
-	CheckinView checkinView = new CheckinView();
-
 	private String dateFormat;
 
 	public String getDateFormat()

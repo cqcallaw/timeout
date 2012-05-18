@@ -11,6 +11,7 @@ div#activity {
 
 div#checkin {
 	text-align: right;
+	margin-top: 1em;
 }
 
 div#user {
@@ -36,9 +37,11 @@ span.inputLabel {
 	width: 300px;
 	background-color: lightblue;
 }
+
 .recipient-Button {
 	margin-top: 1em;
 }
+
 .error-Label {
 	margin-top: 1em;
 	color: red;

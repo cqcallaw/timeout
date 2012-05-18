@@ -48,6 +48,8 @@ public abstract class Activity implements Serializable
 		this.timestamp = timestamp;
 	}
 
+	public abstract String getTypeName();
+
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -17,10 +17,6 @@
 			</g:HTMLPanel>
 			<v:RecipientListView ui:field="recipientView"
 				width="100%" />
-			<g:HTMLPanel>
-				<h1>Checkin</h1>
-			</g:HTMLPanel>
-			<v:CheckinView ui:field="checkinView" width="100%" />
 		</g:VerticalPanel>
 	</g:VerticalPanel>
 </ui:UiBinder>
