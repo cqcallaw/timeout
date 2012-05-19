@@ -27,13 +27,14 @@ public class EmailRecipient extends Recipient implements Serializable
 		this("", false, "");
 	}
 
-	public EmailRecipient(@NotNull String name, boolean verified)
+	public EmailRecipient(@NotNull String name,
+			boolean verified)
 	{
 		this(name, verified, "");
 	}
 
-	public EmailRecipient(@NotNull String name, boolean verified,
-			@NotNull String address)
+	public EmailRecipient(@NotNull String name,
+			boolean verified, @NotNull String address)
 	{
 		super(name, verified);
 
@@ -42,7 +43,7 @@ public class EmailRecipient extends Recipient implements Serializable
 
 		this.address = address;
 	}
-	
+
 	@Override
 	public boolean equals(Object other)
 	{

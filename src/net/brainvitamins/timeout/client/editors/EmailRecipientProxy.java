@@ -24,7 +24,7 @@ public class EmailRecipientProxy
 
 	public void setName(String name)
 	{
-		//strip any markup out
+		// TODO: strip any markup out, for safety
 		if (!(name == null))
 			result = new EmailRecipient(name, result.isVerified(),
 					result.getAddress());
@@ -44,7 +44,7 @@ public class EmailRecipientProxy
 
 	public EmailRecipientProxy()
 	{
-		this(new EmailRecipient("", false));
+		this(new EmailRecipient());
 	}
 
 	public EmailRecipientProxy(EmailRecipient result)

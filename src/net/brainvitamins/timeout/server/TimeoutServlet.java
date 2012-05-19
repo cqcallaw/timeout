@@ -1,6 +1,5 @@
 package net.brainvitamins.timeout.server;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,7 +20,7 @@ public class TimeoutServlet extends HttpServlet
 
 	// TODO: secure timeout URL (shouldn't be directly callable by the user)
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException
+			throws IllegalArgumentException
 	{
 		String userId = req.getParameter("userId");
 		String startTimeParameter = req.getParameter("startTime");

@@ -72,7 +72,8 @@ public class RecipientListView extends Composite implements
 			@Override
 			public String getValue(Recipient recipient)
 			{
-				return recipient.getName() + (recipient.isVerified() ? "" : "(Unverified) ");
+				return (recipient.isVerified() ? "" : "(Unverified) ")
+						+ recipient.getName();
 			}
 		};
 
@@ -108,7 +109,7 @@ public class RecipientListView extends Composite implements
 	@UiHandler("addButton")
 	void handleClick(ClickEvent e)
 	{
-		//ideally this would be generalized to handle non-email recipients
+		// ideally this would be generalized to handle non-email recipients
 		EmailRecipient recipient = new EmailRecipient();
 
 		final EmailRecipientEditorDialog editDialog = new EmailRecipientEditorDialog();

@@ -12,13 +12,9 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.validation.constraints.NotNull;
 
 @PersistenceCapable
-// @Inheritance(strategy = InheritanceStrategy.SUBCLASS_TABLE)
 @Discriminator(strategy = DiscriminatorStrategy.CLASS_NAME)
 public abstract class Recipient implements Serializable
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 8775141775408581192L;
 
 	@SuppressWarnings("unused")
