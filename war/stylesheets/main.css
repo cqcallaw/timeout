@@ -46,3 +46,7 @@ span.inputLabel {
 	margin-top: 1em;
 	color: red;
 }
+
+.dialog {
+	margin: 1em;
+}

@@ -7,6 +7,8 @@ import net.brainvitamins.timeout.shared.services.RecipientServiceAsync;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.SimpleBeanEditorDriver;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -52,6 +54,19 @@ public class EmailRecipientEditorDialog extends DialogBox
 		driver = GWT.create(Driver.class);
 		driver.initialize(editor);
 
+		KeyPressHandler errorReset = new KeyPressHandler()
+		{
+			@Override
+			public void onKeyPress(KeyPressEvent event)
+			{
+				errorLabel.setVisible(false);
+			}
+		};
+
+		editor.nameEditor.addKeyPressHandler(errorReset);
+
+		editor.addressEditor.addKeyPressHandler(errorReset);
+
 		setWidget(uiBinder.createAndBindUi(this));
 	}
 
@@ -74,7 +89,8 @@ public class EmailRecipientEditorDialog extends DialogBox
 
 		if (result != null)
 		{
-			// TODO: client-side input validation (empty fields, invalid e-mail addresses, etc)
+			// TODO: client-side input validation (empty fields, invalid e-mail
+			// addresses, etc)
 
 			recipientService.addRecipient(result, new AsyncCallback<Void>()
 			{
@@ -92,6 +108,8 @@ public class EmailRecipientEditorDialog extends DialogBox
 					else
 						errorLabel
 								.setText("Server error while adding recipient.\nPlease contact the server admin.");
+
+					errorLabel.setVisible(true);
 
 					unlockInput();
 				}

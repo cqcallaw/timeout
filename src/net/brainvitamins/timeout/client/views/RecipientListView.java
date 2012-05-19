@@ -108,6 +108,7 @@ public class RecipientListView extends Composite implements
 	@UiHandler("addButton")
 	void handleClick(ClickEvent e)
 	{
+		//ideally this would be generalized to handle non-email recipients
 		EmailRecipient recipient = new EmailRecipient();
 
 		final EmailRecipientEditorDialog editDialog = new EmailRecipientEditorDialog();

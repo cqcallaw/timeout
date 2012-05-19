@@ -3,6 +3,7 @@
 <module rename-to="timeout">
 	<inherits name="com.google.gwt.user.User" />
 	<inherits name="com.google.gwt.logging.Logging" />
+<!-- 	<inherits name="com.google.gwt.junit.JUnit" /> -->
 
 	<inherits name='com.google.gwt.user.theme.clean.Clean' />
 	<!-- <inherits name='com.google.gwt.user.theme.standard.Standard'/> -->
