@@ -7,7 +7,7 @@ import net.brainvitamins.timeout.shared.User;
 
 public class ActivityLogger
 {
-	public void logActivity(String userId, Activity activity)
+	public static void log(String userId, Activity activity)
 	{
 		System.out.println("Logging " + activity.toString());
 		PersistenceManager pm = PMF.get().getPersistenceManager();

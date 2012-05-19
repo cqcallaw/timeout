@@ -113,7 +113,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 
 		queue.add(taskOptions);
 
-		Constants.ACTIVITYLOGGER.logActivity(userId, checkin);
+		ActivityLogger.log(userId, checkin);
 	}
 
 	@Override
@@ -130,7 +130,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 			Activity lastActivity = activityLog.get(activityLog.size() - 1);
 			if (lastActivity instanceof Checkin)
 			{
-				Constants.ACTIVITYLOGGER.logActivity(userId, new Cancellation());
+				ActivityLogger.log(userId, new Cancellation());
 			}
 			else
 			{
