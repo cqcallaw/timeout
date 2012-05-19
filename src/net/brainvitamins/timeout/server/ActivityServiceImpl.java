@@ -8,8 +8,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.jdo.PersistenceManager;
-
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Cancellation;
 import net.brainvitamins.timeout.shared.Checkin;
@@ -29,6 +27,9 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 	private Queue queue = QueueFactory.getDefaultQueue();
 	private UserService userService = UserServiceFactory.getUserService();
 
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 3820757361541824185L;
 
 	@Override
@@ -112,7 +113,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 
 		queue.add(taskOptions);
 
-		logActivity(userId, checkin);
+		Constants.ACTIVITYLOGGER.logActivity(userId, checkin);
 	}
 
 	@Override
@@ -129,7 +130,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 			Activity lastActivity = activityLog.get(activityLog.size() - 1);
 			if (lastActivity instanceof Checkin)
 			{
-				logActivity(userId, new Cancellation());
+				Constants.ACTIVITYLOGGER.logActivity(userId, new Cancellation());
 			}
 			else
 			{
@@ -148,21 +149,5 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 	{
 		// TODO: verify the task was actually deleted.
 		queue.deleteTask(userId);
-	}
-
-	private void logActivity(String userId, Activity activity)
-	{
-		System.out.println("Logging " + activity.toString());
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		pm.getFetchPlan().addGroup("withActivityLog");
-		try
-		{
-			User currentUser = pm.getObjectById(User.class, userId);
-			currentUser.getActivityLog().add(activity);
-		}
-		finally
-		{
-			pm.close();
-		}
 	}
 }
