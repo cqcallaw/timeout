@@ -7,9 +7,6 @@ import javax.jdo.annotations.PersistenceCapable;
 @PersistenceCapable
 public class Cancellation extends Activity implements Serializable
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3820185349208627784L;
 
 	// ref:

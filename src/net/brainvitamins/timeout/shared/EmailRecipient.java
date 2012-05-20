@@ -6,12 +6,9 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.validation.constraints.NotNull;
 
-@PersistenceCapable
+@PersistenceCapable(detachable = "true")
 public class EmailRecipient extends Recipient implements Serializable
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2341504040837658628L;
 
 	@Persistent
@@ -24,19 +21,12 @@ public class EmailRecipient extends Recipient implements Serializable
 
 	public EmailRecipient()
 	{
-		this("", false, "");
+		this("", "");
 	}
 
-	public EmailRecipient(@NotNull String name,
-			boolean verified)
+	public EmailRecipient(@NotNull String name, @NotNull String address)
 	{
-		this(name, verified, "");
-	}
-
-	public EmailRecipient(@NotNull String name,
-			boolean verified, @NotNull String address)
-	{
-		super(name, verified);
+		super(name, false);
 
 		if (address == null)
 			throw new IllegalArgumentException("Address can't be null");
@@ -44,16 +34,47 @@ public class EmailRecipient extends Recipient implements Serializable
 		this.address = address;
 	}
 
-	@Override
-	public boolean equals(Object other)
+	/*
+	 * Protected constructor for clone operations (doesn't set the database keys)
+	 */
+	protected EmailRecipient(@NotNull String name, boolean verified,
+			@NotNull String address)
 	{
-		if (other instanceof EmailRecipient)
-		{
-			EmailRecipient that = (EmailRecipient) other;
-			return this.getName().equals(that.getName())
-					&& this.address.equals(that.getAddress());
-		}
-		return false;
+		super(name, verified);
+		this.address = address;
+	}
+
+	/*
+	 * Protected constructor to enable withProperty method chaining
+	 */
+	protected EmailRecipient(@NotNull String name, boolean verified,
+			@NotNull String address, String dbKey)
+	{
+		super(name, verified, dbKey);
+		this.address = address;
+	}
+
+	@Override
+	public EmailRecipient withName(String name)
+	{
+		return new EmailRecipient(name, isVerified(), getAddress(), getKey());
+	}
+
+	@Override
+	public EmailRecipient withVerified(boolean verified)
+	{
+		return new EmailRecipient(getName(), verified, getAddress(), getKey());
+	}
+
+	@Override
+	public Recipient clone()
+	{
+		return new EmailRecipient(getName(), isVerified(), getAddress());
+	}
+
+	public EmailRecipient withAddress(String address)
+	{
+		return new EmailRecipient(getName(), isVerified(), address, getKey());
 	}
 
 	@Override
@@ -63,9 +84,37 @@ public class EmailRecipient extends Recipient implements Serializable
 				+ (isVerified() ? "(Verified)" : "(Unverified)");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode()
 	{
-		return getName().hashCode() ^ getAddress().hashCode();
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((address == null) ? 0 : address.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (!super.equals(obj)) return false;
+		if (getClass() != obj.getClass()) return false;
+		EmailRecipient other = (EmailRecipient) obj;
+		if (address == null)
+		{
+			if (other.address != null) return false;
+		}
+		else if (!address.equals(other.address)) return false;
+		return true;
 	}
 }

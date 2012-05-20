@@ -11,9 +11,9 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("recipient")
 public interface RecipientService extends RemoteService
 {
-	public void addRecipient(Recipient recipient) throws IllegalArgumentException;
+	public void saveRecipient(Recipient recipient) throws IllegalArgumentException;
 	
-	public void addRecipient(EmailRecipient recipient) throws IllegalArgumentException;
+	public void saveRecipient(EmailRecipient recipient) throws IllegalArgumentException;
 
 	public boolean removeRecipient(Recipient recipient);
 

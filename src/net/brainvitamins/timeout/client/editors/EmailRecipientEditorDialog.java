@@ -92,7 +92,7 @@ public class EmailRecipientEditorDialog extends DialogBox
 			// TODO: client-side input validation (empty fields, invalid e-mail
 			// addresses, etc)
 
-			recipientService.addRecipient(result, new AsyncCallback<Void>()
+			recipientService.saveRecipient(result, new AsyncCallback<Void>()
 			{
 				@Override
 				public void onSuccess(Void result)

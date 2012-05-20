@@ -3,7 +3,7 @@ package net.brainvitamins.timeout.client.editors;
 import net.brainvitamins.timeout.shared.EmailRecipient;
 
 /*
- * Mutable proxy class for EmailRecipients, for Editor support
+ * Mutable proxy class for EmailRecipients, so we can support immutable recipients and Editors simultaneously
  */
 public class EmailRecipientProxy
 {
@@ -25,21 +25,17 @@ public class EmailRecipientProxy
 	public void setName(String name)
 	{
 		// TODO: strip any markup out, for safety
-		if (!(name == null))
-			result = new EmailRecipient(name, result.isVerified(),
-					result.getAddress());
+		if (!(name == null)) result = result.withName(name);
 	}
 
 	public String getAddress()
 	{
-		return result.getName();
+		return result.getAddress();
 	}
 
 	public void setAddress(String address)
 	{
-		if (!(address == null))
-			result = new EmailRecipient(result.getName(), result.isVerified(),
-					address);
+		if (!(address == null)) result = result.withAddress(address);
 	}
 
 	public EmailRecipientProxy()

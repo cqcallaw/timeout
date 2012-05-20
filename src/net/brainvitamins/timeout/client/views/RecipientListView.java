@@ -57,16 +57,6 @@ public class RecipientListView extends Composite implements
 
 		recipientView.setEmptyTableWidget(new Label("No recipients."));
 
-		Column<Recipient, Recipient> removeColumn = new Column<Recipient, Recipient>(
-				new RemoveCell())
-		{
-			@Override
-			public Recipient getValue(Recipient object)
-			{
-				return object;
-			}
-		};
-
 		TextColumn<Recipient> nameColumn = new TextColumn<Recipient>()
 		{
 			@Override
@@ -94,14 +84,36 @@ public class RecipientListView extends Composite implements
 			}
 		};
 
+		Column<Recipient, Recipient> editColumn = new Column<Recipient, Recipient>(
+				new EditCell())
+		{
+			@Override
+			public Recipient getValue(Recipient object)
+			{
+				return object;
+			}
+		};
+
+		Column<Recipient, Recipient> removeColumn = new Column<Recipient, Recipient>(
+				new RemoveCell())
+		{
+			@Override
+			public Recipient getValue(Recipient object)
+			{
+				return object;
+			}
+		};
+
 		recipientView.addColumn(nameColumn);
 		recipientView.addColumn(addressColumn);
+		recipientView.addColumn(editColumn);
 		recipientView.addColumn(removeColumn);
 
 		recipientView.setWidth("100%", true);
 		recipientView.setColumnWidth(nameColumn, 25, Unit.PCT);
 		recipientView.setColumnWidth(addressColumn, 75, Unit.PCT);
-		recipientView.setColumnWidth(removeColumn, 48, Unit.PX);
+		recipientView.setColumnWidth(editColumn, 38, Unit.PX);
+		recipientView.setColumnWidth(removeColumn, 38, Unit.PX);
 
 		initWidget(uiBinder.createAndBindUi(this));
 	}
@@ -111,9 +123,7 @@ public class RecipientListView extends Composite implements
 	{
 		// ideally this would be generalized to handle non-email recipients
 		EmailRecipient recipient = new EmailRecipient();
-
-		final EmailRecipientEditorDialog editDialog = new EmailRecipientEditorDialog();
-
+		EmailRecipientEditorDialog editDialog = new EmailRecipientEditorDialog();
 		editDialog.edit(recipient);
 	}
 }
