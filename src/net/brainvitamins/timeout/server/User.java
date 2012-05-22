@@ -1,4 +1,4 @@
-package net.brainvitamins.timeout.shared;
+package net.brainvitamins.timeout.server;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,6 +10,9 @@ import javax.jdo.annotations.FetchGroups;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+
+import net.brainvitamins.timeout.shared.Activity;
+import net.brainvitamins.timeout.shared.Recipient;
 
 @PersistenceCapable(detachable = "true")
 @FetchGroups({

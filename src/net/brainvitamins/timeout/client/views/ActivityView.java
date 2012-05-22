@@ -65,7 +65,6 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 		timeoutField.setValue(String.valueOf(value));
 	}
 
-	// TODO: date column sorting (client-side)
 	public ActivityView(final String dateFormat)
 	{
 		if (dateFormat == null || dateFormat.isEmpty())

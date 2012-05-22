@@ -3,7 +3,6 @@ package net.brainvitamins.timeout.server;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 
-import net.brainvitamins.timeout.shared.User;
 
 import com.google.appengine.api.users.UserServiceFactory;
 

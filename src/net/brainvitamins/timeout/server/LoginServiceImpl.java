@@ -3,7 +3,6 @@ package net.brainvitamins.timeout.server;
 import javax.jdo.PersistenceManager;
 
 import net.brainvitamins.timeout.shared.LoginInfo;
-import net.brainvitamins.timeout.shared.User;
 import net.brainvitamins.timeout.shared.services.LoginService;
 
 import com.google.appengine.api.users.UserService;

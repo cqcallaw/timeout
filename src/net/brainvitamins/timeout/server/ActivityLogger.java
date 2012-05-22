@@ -3,7 +3,6 @@ package net.brainvitamins.timeout.server;
 import javax.jdo.PersistenceManager;
 
 import net.brainvitamins.timeout.shared.Activity;
-import net.brainvitamins.timeout.shared.User;
 
 public class ActivityLogger
 {

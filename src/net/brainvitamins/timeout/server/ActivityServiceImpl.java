@@ -11,7 +11,6 @@ import java.util.TimeZone;
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Cancellation;
 import net.brainvitamins.timeout.shared.Checkin;
-import net.brainvitamins.timeout.shared.User;
 import net.brainvitamins.timeout.shared.services.ActivityService;
 
 import com.google.appengine.api.taskqueue.Queue;
