@@ -94,7 +94,6 @@ public abstract class Recipient implements Serializable
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + (verified ? 1231 : 1237);
 		return result;
@@ -110,11 +109,6 @@ public abstract class Recipient implements Serializable
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		Recipient other = (Recipient) obj;
-		if (key == null)
-		{
-			if (other.key != null) return false;
-		}
-		else if (!key.equals(other.key)) return false;
 		if (name == null)
 		{
 			if (other.name != null) return false;
