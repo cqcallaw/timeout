@@ -39,6 +39,10 @@ public class EmailRecipientEditorDialog extends DialogBox
 	private RecipientServiceAsync recipientService = GWT
 			.create(RecipientService.class);
 
+	private static Image img = new Image("loading.gif");
+
+	private EmailRecipient original;
+
 	@UiField(provided = true)
 	EmailRecipientEditor editor;
 
@@ -70,13 +74,18 @@ public class EmailRecipientEditorDialog extends DialogBox
 		setWidget(uiBinder.createAndBindUi(this));
 	}
 
-	public void edit(EmailRecipient recipient)
+	public void add()
 	{
-		driver.edit(new EmailRecipientProxy(recipient));
+		driver.edit(new EmailRecipientProxy());
 		this.center();
 	}
 
-	private static Image img = new Image("loading.gif");
+	public void edit(EmailRecipient recipient)
+	{
+		original = recipient;
+		driver.edit(new EmailRecipientProxy(recipient));
+		this.center();
+	}
 
 	@UiHandler("okButton")
 	void save(ClickEvent event)
@@ -85,35 +94,29 @@ public class EmailRecipientEditorDialog extends DialogBox
 		lockInput();
 		EmailRecipient result = driver.flush().getResult();
 
-		final EmailRecipientEditorDialog currentDialog = this;
-
 		if (result != null)
 		{
 			// TODO: client-side input validation (empty fields, invalid e-mail
 			// addresses, etc)
 
-			recipientService.saveRecipient(result, new AsyncCallback<Void>()
+			// the original is magically mysteriously initialized by the time we
+			// reach this point. Odd.
+			if (original.equals(new EmailRecipient()))
 			{
-				@Override
-				public void onSuccess(Void result)
-				{
-					currentDialog.hide();
-				}
-
-				@Override
-				public void onFailure(Throwable caught)
-				{
-					if (caught instanceof IllegalArgumentException)
-						errorLabel.setText(caught.getMessage());
-					else
-						errorLabel
-								.setText("Server error while adding recipient.\nPlease contact the server admin.");
-
-					errorLabel.setVisible(true);
-
-					unlockInput();
-				}
-			});
+				recipientService.addRecipient(result, serverHandler);
+			}
+			else if (!(original.equals(result)))
+			{
+				recipientService.updateRecipient(result, serverHandler);
+			}
+			else
+			{
+				unlockInput();
+			}
+		}
+		else
+		{
+			unlockInput();
 		}
 	}
 
@@ -122,6 +125,31 @@ public class EmailRecipientEditorDialog extends DialogBox
 	{
 		this.hide();
 	}
+
+	private final EmailRecipientEditorDialog currentDialog = this;
+
+	private AsyncCallback<Void> serverHandler = new AsyncCallback<Void>()
+	{
+		@Override
+		public void onSuccess(Void result)
+		{
+			currentDialog.hide();
+		}
+
+		@Override
+		public void onFailure(Throwable caught)
+		{
+			if (caught instanceof IllegalArgumentException)
+				errorLabel.setText(caught.getMessage());
+			else
+				errorLabel
+						.setText("Server error while adding recipient.\nPlease contact the server admin.");
+
+			errorLabel.setVisible(true);
+
+			unlockInput();
+		}
+	};
 
 	private void lockInput()
 	{

@@ -26,6 +26,16 @@
 <!-- 	</servlet-mapping> -->
 
 	<servlet>
+		<servlet-name>verificationServlet</servlet-name>
+		<servlet-class>net.brainvitamins.timeout.server.VerificationServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>verificationServlet</servlet-name>
+		<url-pattern>/timeout/verification</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
 		<servlet-name>timeoutServlet</servlet-name>
 		<servlet-class>net.brainvitamins.timeout.server.TimeoutServlet</servlet-class>
 	</servlet>

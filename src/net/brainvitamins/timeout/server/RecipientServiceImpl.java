@@ -1,23 +1,23 @@
 package net.brainvitamins.timeout.server;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import javax.jdo.PersistenceManager;
-import javax.jdo.Transaction;
+import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
-import net.brainvitamins.timeout.shared.User;
+import net.brainvitamins.timeout.shared.Timeout;
 import net.brainvitamins.timeout.shared.services.RecipientService;
 
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class RecipientServiceImpl extends RemoteServiceServlet implements
@@ -28,108 +28,39 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	public static final String recipientKindIdentifier = "Recipient";
 
 	@Override
-	public void saveRecipient(@NotNull Recipient recipient)
+	public void addRecipient(@NotNull Recipient recipient)
 			throws IllegalArgumentException
 	{
-		// validation
-		if (recipient == null)
-			throw new IllegalArgumentException("Recipient cannot be null.");
+		validateRecipient(recipient);
 
-		if (recipient.getName() == null)
-			throw new IllegalArgumentException("Name cannot be null.");
+		addRecipientCore(recipient);
+	}
 
-		if (recipient.getName().equals(""))
-			throw new IllegalArgumentException("Name cannot be empty.");
+	@Override
+	public void addRecipient(@NotNull EmailRecipient recipient)
+			throws IllegalArgumentException, UnsupportedEncodingException
+	{
+		validateRecipient(recipient);
 
-		com.google.appengine.api.users.User user = UserServiceFactory
-				.getUserService().getCurrentUser();
+		// TODO: send verification email if the recipient is new
+		// TODO: handle email failure modes:
+		// -delivery fails
+		// -delivery fails remotely (initial send is a success)
+		// -delivery succeeds but adding the recipient to the app engine
+		// database fails
 
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+		requestConfirmation(recipient, DataOperations.getCurrentUser());
 
-		try
-		{
-			User currentUser = pm.getObjectById(User.class, user.getUserId());
-
-			Set<Recipient> recipients = currentUser.getRecipients();
-
-			if (recipient.getKey() == null) // new recipient--add it
-			{
-				recipients.add(recipient);
-			}
-			else
-			{
-				Transaction tx = pm.currentTransaction();
-				try
-				{
-					// doing a getObjectById on the recipient causes DataNucleus
-					// to complain about multiple entity groups in a single
-					// transaction
-					// Object old = pm.getObjectById(recipient.getClass(),
-					// recipient.getKey());
-
-					Recipient dbReference = getDatabaseReference(recipient,
-							recipients);
-
-					// this is an elaborate hack to maintain the immutability of
-					// (most) shared types (User being the exception)
-					// The add precedes the remove so the remove operation
-					// doesn't run afoul of
-					// "Cannot read fields from a deleted object" errors from
-					// DataNucleus.
-					// The logic goes:
-					// -add an exact duplicate (sans database key)
-					// -remove the previous persisted Recipient by reference
-					// there's almost certainly a better way to handle this;
-					// I just don't see it right now.
-
-					if (dbReference != null)
-					{
-						tx.begin();
-						recipients.add(recipient.clone());
-						recipients.remove(dbReference);
-						tx.commit();
-					}
-					else
-					{
-						throw new IllegalArgumentException("Invalid recipient.");
-					}
-				}
-				finally
-				{
-					if (tx.isActive())
-					{
-						// TODO: better logging support
-						System.out.println("Transaction failed.");
-						tx.rollback();
-					}
-				}
-			}
-		}
-		finally
-		{
-			pm.close();
-		}
+		addRecipientCore(recipient);
 	}
 
 	/**
-	 * Get a reference to the object in a Set that comes from a database store.
-	 * This is necessary for properly deleting an item from a persisted Set.
-	 * (see http://stackoverflow.com/a/10577552/577298)
-	 * 
 	 * @param recipient
-	 * @param recipients
-	 * @return
 	 */
-	private Recipient getDatabaseReference(Recipient recipient,
-			Set<Recipient> recipients)
+	private void addRecipientCore(@NotNull Recipient recipient)
 	{
-		Recipient ref = null;
-
-		for (Recipient r : recipients)
-		{
-			if (r.getKey().equals(recipient.getKey())) ref = r;
-		}
-		return ref;
+		DataOperations.addRecipient(recipient,
+				Utilities.getCurrentUserHashedId());
 	}
 
 	@Override
@@ -152,20 +83,47 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	}
 
 	@Override
-	public boolean removeRecipient(Recipient recipient)
+	public void updateRecipient(@NotNull Recipient recipient)
+			throws IllegalArgumentException
 	{
-		com.google.appengine.api.users.User user = UserServiceFactory
-				.getUserService().getCurrentUser();
+		validateRecipient(recipient);
+
+		updateRecipientCore(recipient);
+	}
+
+	@Override
+	public void updateRecipient(@NotNull EmailRecipient recipient)
+			throws IllegalArgumentException
+	{
+		validateRecipient(recipient);
+
+		updateRecipientCore(recipient);
+	}
+
+	/**
+	 * @param recipient
+	 */
+	private void updateRecipientCore(Recipient recipient)
+	{
+		DataOperations.updateRecipient(recipient,
+				Utilities.getCurrentUserHashedId());
+	}
+
+	@Override
+	public boolean removeRecipient(@NotNull Recipient recipient)
+	{
+		validateRecipient(recipient);
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		pm.getFetchPlan().addGroup("withRecipients");
 
 		try
 		{
-			User currentUser = pm.getObjectById(User.class, user.getUserId());
+			User currentUser = pm.getObjectById(User.class,
+					Utilities.getCurrentUserHashedId());
 
 			boolean result = false;
-			Recipient ref = getDatabaseReference(recipient,
+			Recipient ref = DataOperations.getDatabaseReference(recipient,
 					currentUser.getRecipients());
 
 			if (ref != null) result = currentUser.getRecipients().remove(ref);
@@ -178,10 +136,29 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		}
 	}
 
-	@Override
-	public void saveRecipient(EmailRecipient recipient)
-			throws IllegalArgumentException
+	/**
+	 * @param recipient
+	 */
+	private void validateRecipient(Recipient recipient)
 	{
+		// validation
+		if (recipient == null)
+			throw new IllegalArgumentException("Recipient cannot be null.");
+
+		if (recipient.getName() == null)
+			throw new IllegalArgumentException("Name cannot be null.");
+
+		if (recipient.getName().equals(""))
+			throw new IllegalArgumentException("Name cannot be empty.");
+	}
+
+	/**
+	 * @param recipient
+	 */
+	private void validateRecipient(EmailRecipient recipient)
+	{
+		validateRecipient((Recipient) recipient);
+
 		try
 		{
 			new InternetAddress(recipient.getAddress());
@@ -190,14 +167,45 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		{
 			throw new IllegalArgumentException("Invalid email address.");
 		}
+	}
 
-		// TODO: send verification email
-		// TODO: handle email failure modes:
-		// -delivery fails
-		// -delivery fails remotely (initial send is a success)
-		// -delivery succeeds but adding the recipient to the app engine
-		// database fails
+	private void sendNotification(EmailRecipient recipient, User user,
+			Timeout timeout) throws UnsupportedEncodingException,
+			MessagingException
+	{
+		Mailer.sendMessage("Timeout notification", "User " + user.getNickname()
+				+ "checked in at " + timeout.getStartTime()
+				+ ". This checkin timed out at " + timeout.getTimestamp(),
+				recipient.getName(), recipient.getAddress(), "The Admin",
+				"admin@---appspotmail.com");
+	}
 
-		saveRecipient((Recipient) recipient);
+	/*
+	 * ref: http://stackoverflow.com/a/415971/577298
+	 * http://stackoverflow.com/a/10604659/577298
+	 */
+	private void requestConfirmation(EmailRecipient recipient, User user)
+			throws UnsupportedEncodingException
+	{
+		HttpServletRequest request = this.getThreadLocalRequest();
+
+		String verificationURL = "http://" + request.getServerName() + ":"
+				+ request.getServerPort() + "/timeout/verification?userId="
+				+ user.getId() + "&recipientId=" + recipient.hashCode();
+		System.out.println("URL: " + verificationURL);
+
+		try
+		{
+			Mailer.sendMessage(
+					"Recipient confirmation",
+					"User has added you as a recipient of timeout notifications",
+					recipient.getName(), recipient.getAddress(), "The Admin",
+					"admin@---appspotmail.com");
+		}
+		catch (MessagingException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

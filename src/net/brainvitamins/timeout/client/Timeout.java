@@ -143,6 +143,7 @@ public class Timeout implements EntryPoint
 		};
 
 		// TODO: jitter the intervals
+		// TODO: use Channels https://developers.google.com/appengine/docs/java/channel/ 
 		activityRefreshTimer.scheduleRepeating(REFRESH_INTERVAL);
 
 		Timer recipientRefreshTimer = new Timer()

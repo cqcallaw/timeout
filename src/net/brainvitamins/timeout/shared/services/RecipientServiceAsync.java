@@ -9,9 +9,13 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface RecipientServiceAsync
 {
-	void saveRecipient(Recipient recipient, AsyncCallback<Void> callback);
+	void addRecipient(Recipient recipient, AsyncCallback<Void> callback);
 
-	void saveRecipient(EmailRecipient recipient, AsyncCallback<Void> callback);
+	void addRecipient(EmailRecipient recipient, AsyncCallback<Void> callback);
+
+	void updateRecipient(Recipient recipient, AsyncCallback<Void> callback);
+
+	void updateRecipient(EmailRecipient recipient, AsyncCallback<Void> callback);
 
 	void getRecipients(AsyncCallback<List<Recipient>> callback);
 

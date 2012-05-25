@@ -1,6 +1,7 @@
 package net.brainvitamins.timeout.server;
 
 import javax.jdo.PersistenceManager;
+import javax.jdo.Transaction;
 
 import net.brainvitamins.timeout.shared.LoginInfo;
 import net.brainvitamins.timeout.shared.services.LoginService;
@@ -30,13 +31,23 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 			if (userDataObject == null)
 			{
 				PersistenceManager pm = PMF.get().getPersistenceManager();
+				Transaction tx = pm.currentTransaction();
+				User newUser = new User(user.getUserId(), user.getNickname());
 				try
 				{
-					pm.makePersistent(new User(user.getUserId(), user
-							.getNickname()));
+					tx.begin();
+					pm.makePersistent(newUser);
+					tx.commit();
 				}
 				finally
 				{
+					if (tx.isActive())
+					{
+						System.out.println("Failed to create user.");
+						tx.rollback();
+					}
+
+					System.out.println("Added " + newUser);
 					pm.close();
 				}
 			}

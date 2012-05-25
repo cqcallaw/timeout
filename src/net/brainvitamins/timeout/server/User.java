@@ -23,6 +23,11 @@ public class User
 	@PrimaryKey
 	private String id;
 
+	public String getId()
+	{
+		return id;
+	}
+
 	private String nickname;
 
 	@Persistent(dependentElement = "true")
@@ -65,9 +70,20 @@ public class User
 	public User(String userId, String nickname)
 	{
 		super();
-		this.id = userId;
+		this.id = Utilities.hashUserId(userId);
 		this.nickname = nickname;
 		activityLog = new ArrayList<Activity>();
 		recipients = new HashSet<Recipient>();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return "User [id=" + id + ", nickname=" + nickname + "]";
 	}
 }

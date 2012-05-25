@@ -1,19 +1,28 @@
 package net.brainvitamins.timeout.shared.services;
 
-
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("recipient")
 public interface RecipientService extends RemoteService
 {
-	public void saveRecipient(Recipient recipient) throws IllegalArgumentException;
-	
-	public void saveRecipient(EmailRecipient recipient) throws IllegalArgumentException;
+	public void addRecipient(Recipient recipient)
+			throws IllegalArgumentException;
+
+	public void addRecipient(EmailRecipient recipient)
+			throws IllegalArgumentException, UnsupportedEncodingException;
+
+	public void updateRecipient(Recipient recipient)
+			throws IllegalArgumentException;
+
+	public void updateRecipient(EmailRecipient recipient)
+			throws IllegalArgumentException;
 
 	public boolean removeRecipient(Recipient recipient);
 

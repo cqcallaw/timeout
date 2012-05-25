@@ -16,15 +16,12 @@ import net.brainvitamins.timeout.shared.services.ActivityService;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class ActivityServiceImpl extends RemoteServiceServlet implements
 		ActivityService
 {
 	private Queue queue = QueueFactory.getDefaultQueue();
-	private UserService userService = UserServiceFactory.getUserService();
 
 	/**
 	 * 
@@ -93,12 +90,11 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 
 		Date timestamp = new Date();
 		Checkin checkin = new Checkin(timestamp, timeout);
-		com.google.appengine.api.users.User user = userService.getCurrentUser();
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
 				Constants.INTERNALDATEFORMAT);
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String time = dateFormat.format(timestamp);
-		String userId = user.getUserId();
+		String userId = Utilities.getCurrentUserHashedId();
 
 		// cancel active timeout
 		cancelCheckin(userId);
