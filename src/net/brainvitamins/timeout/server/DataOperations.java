@@ -122,11 +122,11 @@ public class DataOperations
 
 			Set<Recipient> recipients = currentUser.getRecipients();
 
+			Recipient dbReference = null;
 			Transaction tx = pm.currentTransaction();
 			try
 			{
-				Recipient dbReference = getDatabaseReference(recipient,
-						recipients);
+				dbReference = getDatabaseReference(recipient, recipients);
 
 				// this is an elaborate hack to maintain the immutability of
 				// shared data types
@@ -157,7 +157,7 @@ public class DataOperations
 				if (tx.isActive())
 				{
 					// TODO: better logging support
-					System.out.println("Transaction failed.");
+					System.out.println("Update of " + dbReference + " to " + recipient + " failed.");
 					tx.rollback();
 				}
 			}

@@ -63,7 +63,7 @@ public class User
 	public Set<Recipient> getRecipients()
 	{
 		// this data model does not share recipients between users.
-		// this may prove inefficient at scale.
+		// this may not scale up well.
 		return recipients;
 	}
 
