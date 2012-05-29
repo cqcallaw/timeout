@@ -35,12 +35,6 @@ public class Checkin extends Activity implements Serializable
 		this.timeout = timeout;
 	}
 
-	@Override
-	public String getTypeName()
-	{
-		return "Checkin";
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 

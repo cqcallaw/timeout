@@ -17,8 +17,8 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
@@ -94,7 +94,9 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 			@Override
 			public String getValue(Activity activity)
 			{
-				return activity.getTypeName();
+				// using Class.getSimpleName() messes with UiBinder stuff
+				String className = activity.getClass().getName();
+				return className.substring(className.lastIndexOf('.') + 1);
 			}
 		};
 

@@ -25,10 +25,4 @@ public class Cancellation extends Activity implements Serializable
 	{
 		return "Cancellation [timestamp=" + getTimestamp() + "]";
 	}
-
-	@Override
-	public String getTypeName()
-	{
-		return "Cancellation";
-	}
 }

@@ -42,12 +42,6 @@ public class Timeout extends Activity implements Serializable
 		this.startTime = startTime;
 	}
 
-	@Override
-	public String getTypeName()
-	{
-		return "Timeout";
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
