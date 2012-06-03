@@ -19,6 +19,19 @@ public class EmailRecipient extends Recipient implements Serializable
 		return address;
 	}
 
+	/**
+	 * Flag to indicate whether the recipient has confirmed they wish to receive
+	 * notifications
+	 */
+	// TODO: think of how this could be re-implemented as an enumeration
+	@Persistent
+	private boolean verified;
+
+	public boolean isVerified()
+	{
+		return verified;
+	}
+
 	public EmailRecipient()
 	{
 		this("", "");
@@ -26,62 +39,72 @@ public class EmailRecipient extends Recipient implements Serializable
 
 	public EmailRecipient(@NotNull String name, @NotNull String address)
 	{
-		super(name, false);
+		this(name, address, false);
+	}
+
+	/**
+	 * Constructor for clone operations and reconstitution (doesn't set the
+	 * database keys)
+	 * 
+	 * Use this constructor with care: setting "isVerified" to true should
+	 * generally be an automated process.
+	 */
+	public EmailRecipient(@NotNull String name, @NotNull String address,
+			boolean verified)
+	{
+		super(name);
 
 		if (address == null)
 			throw new IllegalArgumentException("Address can't be null");
 
 		this.address = address;
+		this.verified = false;
 	}
 
-	/*
-	 * Protected constructor for clone operations (doesn't set the database keys)
-	 */
-	protected EmailRecipient(@NotNull String name, boolean verified,
-			@NotNull String address)
-	{
-		super(name, verified);
-		this.address = address;
-	}
-
-	/*
+	/**
 	 * Protected constructor to enable withProperty method chaining
 	 */
-	protected EmailRecipient(@NotNull String name, boolean verified,
-			@NotNull String address, String dbKey)
+	protected EmailRecipient(@NotNull String name, @NotNull String address,
+			boolean verified, String dbKey)
 	{
-		super(name, verified, dbKey);
+		super(name, dbKey);
 		this.address = address;
+		this.verified = verified;
 	}
 
 	@Override
 	public EmailRecipient withName(String name)
 	{
-		return new EmailRecipient(name, isVerified(), getAddress(), getKey());
+		return new EmailRecipient(name, getAddress(), isVerified(), getKey());
 	}
 
 	@Override
 	public EmailRecipient withVerified(boolean verified)
 	{
-		return new EmailRecipient(getName(), verified, getAddress(), getKey());
+		return new EmailRecipient(getName(), getAddress(), verified, getKey());
 	}
 
 	@Override
 	public Recipient clone()
 	{
-		return new EmailRecipient(getName(), isVerified(), getAddress());
+		return new EmailRecipient(getName(), getAddress(), isVerified());
 	}
 
 	public EmailRecipient withAddress(String address)
 	{
-		return new EmailRecipient(getName(), isVerified(), address, getKey());
+		return new EmailRecipient(getName(), address, isVerified(), getKey());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString()
 	{
-		return getName() + ":" + getAddress()
-				+ (isVerified() ? "(Verified)" : "(Unverified)");
+		return "EmailRecipient [name=" + getName() + ", address=" + address
+				+ ", verified=" + verified + "]";
 	}
 
 	/*

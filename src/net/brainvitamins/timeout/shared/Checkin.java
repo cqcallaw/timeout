@@ -6,6 +6,9 @@ import java.util.Date;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
+
 @PersistenceCapable
 public class Checkin extends Activity implements Serializable
 {
@@ -43,7 +46,7 @@ public class Checkin extends Activity implements Serializable
 	@Override
 	public String toString()
 	{
-		return "Checkin [timestamp=" + getTimestamp() + ", timeout=" + timeout
-				+ "]";
+		return "Checkin [timestamp=" + getTimestamp().toGMTString()
+				+ ", timeout=" + timeout + "]";
 	}
 }

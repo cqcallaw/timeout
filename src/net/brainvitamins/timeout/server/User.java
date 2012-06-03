@@ -36,14 +36,6 @@ public class User
 	@Persistent(dependentElement = "true")
 	private Set<Recipient> recipients;
 
-	/**
-	 * @return the userId
-	 */
-	public String getUserId()
-	{
-		return id;
-	}
-
 	public String getNickname()
 	{
 		return nickname;

@@ -35,7 +35,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 			throw new IllegalArgumentException(
 					"sizeLimit must greater than or equal to 1.");
 
-		User currentUser = DataOperations.getCurrentUserWithActivity();
+		User currentUser = Utilities.getCurrentUserWithActivity();
 
 		List<Activity> activityLog = new ArrayList<Activity>();
 
@@ -52,6 +52,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 			return activityLog;
 		}
 
+		//TODO: this may be unnecessary and inefficient.
 		Collections.sort(currentUser.getActivityLog(),
 				new Comparator<Activity>()
 				{
@@ -94,7 +95,11 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 				Constants.INTERNALDATEFORMAT);
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String time = dateFormat.format(timestamp);
-		String userId = Utilities.getCurrentUserHashedId();
+		// String userId = Utilities.getCurrentUserHashedId();
+		User user = Utilities.getCurrentUser();
+		String userId = user.getId();
+
+		String sessionId = getThreadLocalRequest().getSession().getId();
 
 		// cancel active timeout
 		cancelCheckin(userId);
@@ -104,18 +109,21 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 		TaskOptions taskOptions = TaskOptions.Builder
 				.withUrl("/timeout/timeout").countdownMillis(timeout)
 				.param("userId", userId).param("startTime", time)
+				.param("sourceSessionId", sessionId)
 				.param("timeout", Long.toString(timeout)).taskName(userId);
 
 		queue.add(taskOptions);
 
-		ActivityLogger.log(userId, checkin);
+		ActivityOperations.log(userId, checkin);
+
+		ActivityOperations.pushToClient(sessionId, checkin);
 	}
 
 	@Override
 	public void cancelCheckin() throws IllegalStateException
 	{
-		User user = DataOperations.getCurrentUserWithActivity();
-		String userId = user.getUserId();
+		User user = Utilities.getCurrentUserWithActivity();
+		String userId = user.getId();
 
 		cancelCheckin(userId);
 		List<Activity> activityLog = user.getActivityLog();
@@ -125,7 +133,11 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 			Activity lastActivity = activityLog.get(activityLog.size() - 1);
 			if (lastActivity instanceof Checkin)
 			{
-				ActivityLogger.log(userId, new Cancellation());
+				Cancellation cancellation = new Cancellation();
+				ActivityOperations.log(userId, cancellation);
+
+				ActivityOperations.pushToClient(getThreadLocalRequest()
+						.getSession().getId(), cancellation);
 			}
 			else
 			{

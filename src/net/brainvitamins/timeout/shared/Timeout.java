@@ -6,6 +6,10 @@ import java.util.Date;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
+import com.google.gson.annotations.Expose;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
+
 @PersistenceCapable
 public class Timeout extends Activity implements Serializable
 {
@@ -14,6 +18,7 @@ public class Timeout extends Activity implements Serializable
 	 */
 	private static final long serialVersionUID = 5435541820544915944L;
 
+	@Expose
 	@Persistent(defaultFetchGroup = "true")
 	private long timeout;
 
@@ -22,6 +27,7 @@ public class Timeout extends Activity implements Serializable
 		return timeout;
 	}
 
+	@Expose
 	@Persistent(defaultFetchGroup = "true")
 	private Date startTime;
 
@@ -50,7 +56,8 @@ public class Timeout extends Activity implements Serializable
 	@Override
 	public String toString()
 	{
-		return "Timeout [timestamp=" + getTimestamp() + ", timeout=" + timeout
-				+ ", startTime=" + startTime + "]";
+		return "Timeout [timestamp=" + getTimestamp().toGMTString()
+				+ ", timeout=" + timeout + ", startTime="
+				+ startTime.toGMTString() + "]";
 	}
 }

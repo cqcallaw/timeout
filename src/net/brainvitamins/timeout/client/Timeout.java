@@ -1,24 +1,38 @@
 package net.brainvitamins.timeout.client;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.brainvitamins.timeout.client.views.MainView;
-import net.brainvitamins.timeout.shared.services.ActivityService;
 import net.brainvitamins.timeout.shared.Activity;
+import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.LoginInfo;
 import net.brainvitamins.timeout.shared.Recipient;
+import net.brainvitamins.timeout.shared.services.ActivityService;
 import net.brainvitamins.timeout.shared.services.ActivityServiceAsync;
+import net.brainvitamins.timeout.shared.services.ChannelService;
+import net.brainvitamins.timeout.shared.services.ChannelServiceAsync;
 import net.brainvitamins.timeout.shared.services.LoginService;
 import net.brainvitamins.timeout.shared.services.LoginServiceAsync;
 import net.brainvitamins.timeout.shared.services.RecipientService;
 import net.brainvitamins.timeout.shared.services.RecipientServiceAsync;
 
+import com.google.gwt.appengine.channel.client.Channel;
+import com.google.gwt.appengine.channel.client.ChannelFactory;
+import com.google.gwt.appengine.channel.client.ChannelFactory.ChannelCreatedCallback;
+import com.google.gwt.appengine.channel.client.SocketError;
+import com.google.gwt.appengine.channel.client.SocketListener;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.shared.DefaultDateTimeFormatInfo;
-import com.google.gwt.user.client.Timer;
+import com.google.gwt.i18n.shared.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Label;
@@ -55,11 +69,11 @@ public class Timeout implements EntryPoint
 	private RecipientServiceAsync recipientService = GWT
 			.create(RecipientService.class);
 
+	private ChannelServiceAsync channelService = GWT
+			.create(ChannelService.class);
+
 	private static Logger logger = Logger.getLogger("Main");
 
-	/**
-	 * This is the entry point method.
-	 */
 	public void onModuleLoad()
 	{
 		logger.log(Level.INFO, "Started module loading.");
@@ -112,13 +126,11 @@ public class Timeout implements EntryPoint
 		final ListDataProvider<Activity> activityDataProvider = new ListDataProvider<Activity>();
 		final ListDataProvider<Recipient> recipientDataProvider = new ListDataProvider<Recipient>();
 
-		// final MainView homeView = new MainView(dateFormat,
-		// activityDataProvider, recipientDataProvider);
-
-		// ugh, so wrong and backwards to initialize a view without having data
-		// attached...
+		// ugh, so wrong and backwards to initialize a view without having a
+		// data provider attached...
 		// visual layout editing fails otherwise, though
-		// need a wrapper class of some kind
+		// final MainPresentation homeView = new MainPresentation(dateFormat,
+		// activityDataProvider, recipientDataProvider);
 		final MainView homeView = new MainView(dateFormat);
 		activityDataProvider.addDataDisplay(homeView.getActivityView()
 				.getCellView());
@@ -127,41 +139,121 @@ public class Timeout implements EntryPoint
 
 		RootPanel.get("content").add(homeView);
 
-		refreshActivity(activityDataProvider);
+		getActivity(activityDataProvider);
 
-		refreshRecipients(recipientDataProvider);
+		getRecipients(recipientDataProvider);
+
+		bindChannelToDataProvider(activityDataProvider, ActivityParser.Instance);
+		bindChannelToDataProvider(recipientDataProvider, new RecipientParser());
 
 		logger.log(Level.INFO, "App loaded.");
 
-		Timer activityRefreshTimer = new Timer()
-		{
-			@Override
-			public void run()
-			{
-				refreshActivity(activityDataProvider);
-			}
-		};
-
-		// TODO: jitter the intervals
-		// TODO: use Channels https://developers.google.com/appengine/docs/java/channel/ 
-		activityRefreshTimer.scheduleRepeating(REFRESH_INTERVAL);
-
-		Timer recipientRefreshTimer = new Timer()
-		{
-			@Override
-			public void run()
-			{
-				// TODO: locking so the list doesn't get hammered by multiple
-				// updates
-				refreshRecipients(recipientDataProvider);
-			}
-		};
-
-		recipientRefreshTimer.scheduleRepeating(REFRESH_INTERVAL);
+		// Timer activityRefreshTimer = new Timer()
+		// {
+		// @Override
+		// public void run()
+		// {
+		// refreshActivity(activityDataProvider);
+		// }
+		// };
+		//
+		// // TODO: jitter the intervals
+		// // TODO: use Channels
+		// // https://developers.google.com/appengine/docs/java/channel/
+		// activityRefreshTimer.scheduleRepeating(REFRESH_INTERVAL);
+		//
+		// Timer recipientRefreshTimer = new Timer()
+		// {
+		// @Override
+		// public void run()
+		// {
+		// // TODO: locking so the list doesn't get hammered by multiple
+		// // updates
+		// refreshRecipients(recipientDataProvider);
+		// }
+		// };
+		//
+		// recipientRefreshTimer.scheduleRepeating(REFRESH_INTERVAL);
 	}
 
-	private void refreshRecipients(
-			final ListDataProvider<Recipient> dataProvider)
+	private <T> void bindChannelToDataProvider(
+			final ListDataProvider<T> dataProvider, final Parser<T> parser)
+	{
+		channelService.getActivityChannelToken(new AsyncCallback<String>()
+		{
+			@Override
+			public void onSuccess(String result)
+			{
+				logger.log(Level.INFO, "Got channel id: " + result);
+
+				ChannelFactory.createChannel(result,
+						new ChannelCreatedCallback()
+						{
+							@Override
+							public void onChannelCreated(Channel channel)
+							{
+								channel.open(new SocketListener()
+								{
+									@Override
+									public void onOpen()
+									{
+										logger.log(Level.INFO,
+												"Channel opened!");
+									}
+
+									@Override
+									public void onMessage(String message)
+									{
+										logger.log(Level.INFO,
+												"Received message: " + message);
+
+										T activity = parser.parse(message);
+
+										logger.log(Level.INFO, "Parsed: "
+												+ activity.toString());
+
+										updateProvider(dataProvider, activity);
+									}
+
+									@Override
+									public void onError(SocketError error)
+									{
+										// TODO: better communication with user
+										Window.alert("Channel error: "
+												+ error.getDescription());
+									}
+
+									@Override
+									public void onClose()
+									{
+										logger.log(Level.INFO, "Channel closed");
+									}
+								});
+							}
+						});
+			}
+
+			@Override
+			public void onFailure(Throwable caught)
+			{
+				Window.alert("Error setting up channel: " + caught.getMessage());
+			}
+		});
+	}
+
+	private <T> void updateProvider(
+			final ListDataProvider<T> activityDataProvider, T value)
+	{
+		List<T> data = activityDataProvider.getList();
+
+		List<T> newData = new ArrayList<T>();
+		newData.add(value);
+		data.addAll(0, newData);
+
+		data.remove(data.size() - 1);
+	}
+
+	private void getRecipients(final ListDataProvider<Recipient> dataProvider)
 	{
 		recipientService.getRecipients(new AsyncCallback<List<Recipient>>()
 		{
@@ -185,10 +277,8 @@ public class Timeout implements EntryPoint
 		});
 	}
 
-	/**
-	 * 
-	 */
-	private void refreshActivity(final ListDataProvider<Activity> dataProvider)
+	private void getActivity(
+			final ListDataProvider<Activity> activityDataProvider)
 	{
 		activityService.getActivityLog(5, new AsyncCallback<List<Activity>>()
 		{
@@ -202,7 +292,7 @@ public class Timeout implements EntryPoint
 			@Override
 			public void onSuccess(List<Activity> result)
 			{
-				List<Activity> activityList = dataProvider.getList();
+				List<Activity> activityList = activityDataProvider.getList();
 				activityList.clear();
 				for (Activity activity : result)
 				{

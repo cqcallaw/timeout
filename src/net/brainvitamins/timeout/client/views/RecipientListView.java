@@ -62,8 +62,14 @@ public class RecipientListView extends Composite implements
 			@Override
 			public String getValue(Recipient recipient)
 			{
-				return (recipient.isVerified() ? "" : "(Unverified) ")
-						+ recipient.getName();
+				if (recipient instanceof EmailRecipient)
+				{
+					String prefix = ((EmailRecipient) recipient).isVerified() ? ""
+							: "(Unverified) ";
+					return prefix + recipient.getName();
+				}
+				else
+					return recipient.getName();
 			}
 		};
 

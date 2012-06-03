@@ -75,6 +75,16 @@
 		<url-pattern>/timeout/recipient</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>channelService</servlet-name>
+		<servlet-class>net.brainvitamins.timeout.server.ChannelServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>channelService</servlet-name>
+		<url-pattern>/timeout/channel</url-pattern>
+	</servlet-mapping>
+
 	<!-- Default page to serve -->
 	<welcome-file-list>
 		<!-- <welcome-file>landing.jsp</welcome-file> -->

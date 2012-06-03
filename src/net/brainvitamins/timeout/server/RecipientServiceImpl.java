@@ -42,14 +42,13 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	{
 		validateRecipient(recipient);
 
-		// TODO: send verification email if the recipient is new
 		// TODO: handle email failure modes:
 		// -delivery fails
 		// -delivery fails remotely (initial send is a success)
 		// -delivery succeeds but adding the recipient to the app engine
 		// database fails
 
-		requestConfirmation(recipient, DataOperations.getCurrentUser());
+		requestConfirmation(recipient, Utilities.getCurrentUser());
 
 		addRecipientCore(recipient);
 	}
@@ -59,14 +58,16 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	 */
 	private void addRecipientCore(@NotNull Recipient recipient)
 	{
-		DataOperations.addRecipient(recipient,
+		RecipientOperations.addRecipient(recipient,
 				Utilities.getCurrentUserHashedId());
+		RecipientOperations.pushToClient(getThreadLocalRequest().getSession()
+				.getId(), recipient, DataOperation.CREATE);
 	}
 
 	@Override
 	public List<Recipient> getRecipients()
 	{
-		List<Recipient> result = new ArrayList<Recipient>(DataOperations
+		List<Recipient> result = new ArrayList<Recipient>(Utilities
 				.getCurrentUserWithRecipients().getRecipients());
 
 		// sort by name, descending
@@ -105,8 +106,10 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	 */
 	private void updateRecipientCore(Recipient recipient)
 	{
-		DataOperations.updateRecipient(recipient,
+		RecipientOperations.updateRecipient(recipient,
 				Utilities.getCurrentUserHashedId());
+		RecipientOperations.pushToClient(getThreadLocalRequest().getSession()
+				.getId(), recipient, DataOperation.UPDATE);
 	}
 
 	@Override
@@ -123,7 +126,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 					Utilities.getCurrentUserHashedId());
 
 			boolean result = false;
-			Recipient ref = DataOperations.getDatabaseReference(recipient,
+			Recipient ref = RecipientOperations.getDatabaseReference(recipient,
 					currentUser.getRecipients());
 
 			if (ref != null) result = currentUser.getRecipients().remove(ref);
@@ -173,11 +176,15 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 			Timeout timeout) throws UnsupportedEncodingException,
 			MessagingException
 	{
-		Mailer.sendMessage("Timeout notification", "User " + user.getNickname()
-				+ "checked in at " + timeout.getStartTime()
-				+ ". This checkin timed out at " + timeout.getTimestamp(),
-				recipient.getName(), recipient.getAddress(), "The Admin",
-				"admin@---appspotmail.com");
+		MailOperations
+				.sendMessage(
+						"Timeout notification",
+						"User " + user.getNickname() + "checked in at "
+								+ timeout.getStartTime()
+								+ ". This checkin timed out at "
+								+ timeout.getTimestamp(), recipient.getName(),
+						recipient.getAddress(), "The Admin",
+						"admin@---appspotmail.com");
 	}
 
 	/*
@@ -196,11 +203,12 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 
 		try
 		{
-			Mailer.sendMessage(
-					"Recipient confirmation",
-					"User has added you as a recipient of timeout notifications",
-					recipient.getName(), recipient.getAddress(), "The Admin",
-					"admin@---appspotmail.com");
+			MailOperations
+					.sendMessage(
+							"Recipient confirmation",
+							"User has added you as a recipient of timeout notifications",
+							recipient.getName(), recipient.getAddress(),
+							"The Admin", "admin@---appspotmail.com");
 		}
 		catch (MessagingException e)
 		{

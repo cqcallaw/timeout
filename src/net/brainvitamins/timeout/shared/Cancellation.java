@@ -1,6 +1,7 @@
 package net.brainvitamins.timeout.shared;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.jdo.annotations.PersistenceCapable;
 
@@ -15,6 +16,11 @@ public class Cancellation extends Activity implements Serializable
 	{
 	}
 
+	public Cancellation(Date timestamp)
+	{
+		super(timestamp);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -23,6 +29,6 @@ public class Cancellation extends Activity implements Serializable
 	@Override
 	public String toString()
 	{
-		return "Cancellation [timestamp=" + getTimestamp() + "]";
+		return "Cancellation [timestamp=" + getTimestamp().toGMTString() + "]";
 	}
 }

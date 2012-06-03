@@ -39,7 +39,7 @@ public class VerificationServlet extends HttpServlet
 			{
 				if (recipient.hashCode() == recipientId)
 				{
-					DataOperations.updateRecipient(
+					RecipientOperations.updateRecipient(
 							recipient.withVerified(true), userId);
 					foundRecipient = true;
 					break;

@@ -2,88 +2,17 @@ package net.brainvitamins.timeout.server;
 
 import java.util.Set;
 
-import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Transaction;
 
+import com.google.appengine.api.channel.ChannelMessage;
+import com.google.appengine.api.channel.ChannelService;
+import com.google.appengine.api.channel.ChannelServiceFactory;
+
 import net.brainvitamins.timeout.shared.Recipient;
 
-public class DataOperations
+public class RecipientOperations
 {
-	/**
-	 * Returns a detached copy of the current User data object. The activity log
-	 * and recipient list are not included.
-	 */
-	public static User getCurrentUser()
-	{
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		try
-		{
-			User currentUser = pm.getObjectById(User.class,
-					Utilities.getCurrentUserHashedId());
-			User detached = pm.detachCopy(currentUser);
-			return detached;
-		}
-		catch (JDOObjectNotFoundException e)
-		{
-			return null;
-		}
-		finally
-		{
-			pm.close();
-		}
-	}
-
-	/**
-	 * Returns a detached copy of the current user data, with the activity log.
-	 */
-	public static User getCurrentUserWithActivity()
-	{
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		pm.getFetchPlan().addGroup("withActivityLog");
-		try
-		{
-			User currentUser = pm.getObjectById(User.class,
-					Utilities.getCurrentUserHashedId());
-
-			User detached = pm.detachCopy(currentUser);
-			return detached;
-		}
-		catch (JDOObjectNotFoundException e)
-		{
-			return null;
-		}
-		finally
-		{
-			pm.close();
-		}
-	}
-
-	/**
-	 * Returns a detached copy of the current user data, with the activity log.
-	 */
-	public static User getCurrentUserWithRecipients()
-	{
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		pm.getFetchPlan().addGroup("withRecipients");
-		try
-		{
-			User currentUser = pm.getObjectById(User.class,
-					Utilities.getCurrentUserHashedId());
-
-			User detached = pm.detachCopy(currentUser);
-			return detached;
-		}
-		catch (JDOObjectNotFoundException e)
-		{
-			return null;
-		}
-		finally
-		{
-			pm.close();
-		}
-	}
-
 	/**
 	 * @param recipient
 	 * @param userId
@@ -157,7 +86,8 @@ public class DataOperations
 				if (tx.isActive())
 				{
 					// TODO: better logging support
-					System.out.println("Update of " + dbReference + " to " + recipient + " failed.");
+					System.out.println("Update of " + dbReference + " to "
+							+ recipient + " failed.");
 					tx.rollback();
 				}
 			}
@@ -166,6 +96,21 @@ public class DataOperations
 		{
 			pm.close();
 		}
+	}
+
+	public static void pushToClient(String sessionId, Recipient recipient,
+			DataOperation operation)
+	{
+		ChannelService channelService = ChannelServiceFactory
+				.getChannelService();
+
+		String channelKey = sessionId + ":recipient";
+
+		channelService.sendMessage(new ChannelMessage(channelKey, operation
+				.toString()));
+
+		channelService.sendMessage(new ChannelMessage(channelKey, recipient
+				.toString()));
 	}
 
 	/**

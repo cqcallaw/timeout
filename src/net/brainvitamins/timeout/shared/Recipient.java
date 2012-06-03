@@ -27,18 +27,6 @@ public abstract class Recipient implements Serializable
 		return key;
 	}
 
-	/*
-	 * Flag to indicate whether the recipient has confirmed they wish to receive notifications
-	 */
-	// TODO: think of how this could be re-implemented as an enumeration
-	@Persistent
-	private boolean verified;
-
-	public boolean isVerified()
-	{
-		return verified;
-	}
-
 	@Persistent
 	private String name;
 
@@ -52,29 +40,23 @@ public abstract class Recipient implements Serializable
 
 	public Recipient()
 	{
-		this("", false);
+		this("");
 	}
 
 	public Recipient(@NotNull String name)
 	{
-		this(name, false);
-	}
-
-	public Recipient(@NotNull String name, boolean verified)
-	{
 		if (name == null)
 			throw new IllegalArgumentException("Name can't be null");
 
-		this.verified = verified;
 		this.name = name;
 	}
 
 	/*
 	 * Protected constructor for withProperty method chaining
 	 */
-	protected Recipient(@NotNull String name, boolean verified, String dbKey)
+	protected Recipient(@NotNull String name, String dbKey)
 	{
-		this(name, verified);
+		this(name);
 		this.key = dbKey;
 	}
 
@@ -83,7 +65,7 @@ public abstract class Recipient implements Serializable
 	public abstract Recipient withVerified(boolean verified);
 
 	public abstract Recipient clone();
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -95,11 +77,12 @@ public abstract class Recipient implements Serializable
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + (verified ? 1231 : 1237);
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -114,7 +97,6 @@ public abstract class Recipient implements Serializable
 			if (other.name != null) return false;
 		}
 		else if (!name.equals(other.name)) return false;
-		if (verified != other.verified) return false;
 		return true;
 	}
 }

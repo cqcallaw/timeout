@@ -11,6 +11,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import com.google.gson.annotations.Expose;
+
 //TODO: investigate why this caused problems when it wasn't serializable
 @PersistenceCapable
 @Discriminator(strategy = DiscriminatorStrategy.CLASS_NAME)
@@ -22,11 +24,9 @@ public abstract class Activity implements Serializable
 	@Extension(vendorName = "datanucleus", key = "gae.encoded-pk", value = "true")
 	private String key;
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3009614156402312511L;
 
+	@Expose
 	@Persistent(defaultFetchGroup = "true")
 	private Date timestamp;
 
@@ -46,16 +46,5 @@ public abstract class Activity implements Serializable
 			throw new IllegalArgumentException("Timestamp cannot be null.");
 
 		this.timestamp = timestamp;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		return "Activity [timestamp=" + timestamp + "]";
 	}
 }

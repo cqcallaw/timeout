@@ -4,12 +4,88 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import javax.jdo.JDOObjectNotFoundException;
+import javax.jdo.PersistenceManager;
+
 import com.google.appengine.api.users.UserServiceFactory;
 
 public class Utilities
 {
 	/**
-	 * 
+	 * Returns a detached copy of the current User data object. The activity log
+	 * and recipient list are not included.
+	 */
+	public static User getCurrentUser()
+	{
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try
+		{
+			User currentUser = pm.getObjectById(User.class,
+					Utilities.getCurrentUserHashedId());
+			User detached = pm.detachCopy(currentUser);
+			return detached;
+		}
+		catch (JDOObjectNotFoundException e)
+		{
+			return null;
+		}
+		finally
+		{
+			pm.close();
+		}
+	}
+
+	/**
+	 * Returns a detached copy of the current user data, with the activity log.
+	 */
+	public static User getCurrentUserWithActivity()
+	{
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		pm.getFetchPlan().addGroup("withActivityLog");
+		try
+		{
+			User currentUser = pm.getObjectById(User.class,
+					Utilities.getCurrentUserHashedId());
+
+			User detached = pm.detachCopy(currentUser);
+			return detached;
+		}
+		catch (JDOObjectNotFoundException e)
+		{
+			return null;
+		}
+		finally
+		{
+			pm.close();
+		}
+	}
+
+	/**
+	 * Returns a detached copy of the current user data, with the activity log.
+	 */
+	public static User getCurrentUserWithRecipients()
+	{
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		pm.getFetchPlan().addGroup("withRecipients");
+		try
+		{
+			User currentUser = pm.getObjectById(User.class,
+					Utilities.getCurrentUserHashedId());
+
+			User detached = pm.detachCopy(currentUser);
+			return detached;
+		}
+		catch (JDOObjectNotFoundException e)
+		{
+			return null;
+		}
+		finally
+		{
+			pm.close();
+		}
+	}
+
+	/**
 	 * @see http://stackoverflow.com/a/10604659/577298
 	 * @return
 	 */

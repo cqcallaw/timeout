@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.brainvitamins.timeout.shared.Timeout;
 
-/*
+/**
  * Notify the server of a timeout (this should only be done by an enqueued Task)
  */
 public class TimeoutServlet extends HttpServlet
@@ -25,6 +25,7 @@ public class TimeoutServlet extends HttpServlet
 		String userId = req.getParameter("userId");
 		String startTimeParameter = req.getParameter("startTime");
 		String timeoutParameter = req.getParameter("timeout");
+		String sourceSessionId = req.getParameter("sourceSessionId");
 
 		if (userId == null)
 			throw new IllegalArgumentException(
@@ -36,6 +37,10 @@ public class TimeoutServlet extends HttpServlet
 			throw new IllegalArgumentException(
 					"Parameter timeout cannot be null.");
 
+		if (sourceSessionId == null)
+			throw new IllegalArgumentException(
+					"Parameter sourceSessionId cannot be null.");
+
 		long timeout = Long.parseLong(timeoutParameter);
 
 		try
@@ -45,8 +50,11 @@ public class TimeoutServlet extends HttpServlet
 			format.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Date startTime = format.parse(startTimeParameter);
 
-			ActivityLogger.log(userId, new Timeout(new Date(), timeout,
-					startTime));
+			Timeout activity = new Timeout(new Date(), timeout, startTime);
+
+			ActivityOperations.log(userId, activity);
+
+			ActivityOperations.pushToClient(sourceSessionId, activity);
 		}
 		catch (ParseException e)
 		{
