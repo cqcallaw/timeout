@@ -1,18 +1,18 @@
 package net.brainvitamins.timeout.client;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.brainvitamins.timeout.client.parsers.ActivityParser;
+import net.brainvitamins.timeout.client.parsers.DataOperationParser;
+import net.brainvitamins.timeout.client.parsers.RecipientParser;
 import net.brainvitamins.timeout.client.views.MainView;
 import net.brainvitamins.timeout.shared.Activity;
-import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.LoginInfo;
 import net.brainvitamins.timeout.shared.Recipient;
+import net.brainvitamins.timeout.shared.operations.DataOperation;
 import net.brainvitamins.timeout.shared.services.ActivityService;
 import net.brainvitamins.timeout.shared.services.ActivityServiceAsync;
 import net.brainvitamins.timeout.shared.services.ChannelService;
@@ -29,9 +29,7 @@ import com.google.gwt.appengine.channel.client.SocketError;
 import com.google.gwt.appengine.channel.client.SocketListener;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.shared.DefaultDateTimeFormatInfo;
-import com.google.gwt.i18n.shared.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
@@ -53,8 +51,6 @@ public class Timeout implements EntryPoint
 	private static final String SERVER_ERROR = "An error occurred while "
 			+ "attempting to contact the server. Please check your network "
 			+ "connection and try again.";
-
-	private static final int REFRESH_INTERVAL = 500; // ms
 
 	private LoginInfo loginInfo = null;
 	private VerticalPanel loginPanel = new VerticalPanel();
@@ -143,48 +139,90 @@ public class Timeout implements EntryPoint
 
 		getRecipients(recipientDataProvider);
 
-		bindChannelToDataProvider(activityDataProvider, ActivityParser.Instance);
-		bindChannelToDataProvider(recipientDataProvider, new RecipientParser());
+		bindChannelToDataProvider("activity", activityDataProvider,
+				ActivityParser.Instance, new DataOperationHandler<Activity>()
+				{
+					@Override
+					public void update(Activity value)
+					{
+						throw new IllegalStateException(
+								"Activity should never been updated");
+					}
+
+					@Override
+					public void add(Activity value)
+					{
+						List<Activity> data = activityDataProvider.getList();
+
+						List<Activity> newData = new ArrayList<Activity>();
+						newData.add(value);
+						data.addAll(0, newData);
+
+						data.remove(data.size() - 1);
+					}
+
+					@Override
+					public void delete(Activity value)
+					{
+						throw new IllegalStateException(
+								"Activity should never been deleted");
+					}
+				});
+
+		bindChannelToDataProvider("recipient", recipientDataProvider,
+				RecipientParser.Instance, new DataOperationHandler<Recipient>()
+				{
+					@Override
+					public void update(Recipient value)
+					{
+						List<Recipient> data = recipientDataProvider.getList();
+
+						for (int i = 0; i < data.size(); i++)
+						{
+							if (data.get(i).getKey().equals(value.getKey()))
+							{
+								data.remove(i);
+								data.add(i, value);
+							}
+						}
+					}
+
+					@Override
+					public void add(Recipient value)
+					{
+						List<Recipient> data = recipientDataProvider.getList();
+						// TODO: sorting
+						data.add(value);
+					}
+
+					@Override
+					public void delete(Recipient value)
+					{
+						List<Recipient> data = recipientDataProvider.getList();
+
+						for (int i = 0; i < data.size(); i++)
+						{
+							if (data.get(i).getKey().equals(value.getKey()))
+								data.remove(i);
+						}
+					}
+				});
 
 		logger.log(Level.INFO, "App loaded.");
-
-		// Timer activityRefreshTimer = new Timer()
-		// {
-		// @Override
-		// public void run()
-		// {
-		// refreshActivity(activityDataProvider);
-		// }
-		// };
-		//
-		// // TODO: jitter the intervals
-		// // TODO: use Channels
-		// // https://developers.google.com/appengine/docs/java/channel/
-		// activityRefreshTimer.scheduleRepeating(REFRESH_INTERVAL);
-		//
-		// Timer recipientRefreshTimer = new Timer()
-		// {
-		// @Override
-		// public void run()
-		// {
-		// // TODO: locking so the list doesn't get hammered by multiple
-		// // updates
-		// refreshRecipients(recipientDataProvider);
-		// }
-		// };
-		//
-		// recipientRefreshTimer.scheduleRepeating(REFRESH_INTERVAL);
 	}
 
-	private <T> void bindChannelToDataProvider(
-			final ListDataProvider<T> dataProvider, final Parser<T> parser)
+	private <T> void bindChannelToDataProvider(final String tag,
+			final ListDataProvider<T> dataProvider,
+			final DataOperationParser<T> parser,
+			final DataOperationHandler<T> handler)
 	{
-		channelService.getActivityChannelToken(new AsyncCallback<String>()
+		channelService.getChannelToken(tag, new AsyncCallback<String>()
 		{
 			@Override
 			public void onSuccess(String result)
 			{
-				logger.log(Level.INFO, "Got channel id: " + result);
+				logger.log(Level.INFO, "[" + tag + "]" + "Got channel id: "
+						+ result);
 
 				ChannelFactory.createChannel(result,
 						new ChannelCreatedCallback()
@@ -197,36 +235,44 @@ public class Timeout implements EntryPoint
 									@Override
 									public void onOpen()
 									{
-										logger.log(Level.INFO,
-												"Channel opened!");
+										logger.log(Level.INFO, "[" + tag + "]"
+												+ "Channel opened.");
 									}
 
 									@Override
 									public void onMessage(String message)
 									{
-										logger.log(Level.INFO,
-												"Received message: " + message);
+										logger.log(Level.INFO, "[" + tag + "]"
+												+ "Received message: "
+												+ message);
 
-										T activity = parser.parse(message);
+										DataOperation<T> dataOperation = parser
+												.parse(message);
 
 										logger.log(Level.INFO, "Parsed: "
-												+ activity.toString());
+												+ dataOperation.toString());
 
-										updateProvider(dataProvider, activity);
+										handler.handleOperation(dataOperation);
 									}
 
 									@Override
 									public void onError(SocketError error)
 									{
 										// TODO: better communication with user
-										Window.alert("Channel error: "
-												+ error.getDescription());
+										logger.log(
+												Level.INFO,
+												"["
+														+ tag
+														+ "]"
+														+ "Channel error: "
+														+ error.getDescription());
 									}
 
 									@Override
 									public void onClose()
 									{
-										logger.log(Level.INFO, "Channel closed");
+										logger.log(Level.INFO, "[" + tag + "]"
+												+ "Channel closed.");
 									}
 								});
 							}
@@ -236,21 +282,10 @@ public class Timeout implements EntryPoint
 			@Override
 			public void onFailure(Throwable caught)
 			{
-				Window.alert("Error setting up channel: " + caught.getMessage());
+				Window.alert("[" + tag + "]" + "Error setting up channel: "
+						+ caught.getMessage());
 			}
 		});
-	}
-
-	private <T> void updateProvider(
-			final ListDataProvider<T> activityDataProvider, T value)
-	{
-		List<T> data = activityDataProvider.getList();
-
-		List<T> newData = new ArrayList<T>();
-		newData.add(value);
-		data.addAll(0, newData);
-
-		data.remove(data.size() - 1);
 	}
 
 	private void getRecipients(final ListDataProvider<Recipient> dataProvider)

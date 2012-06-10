@@ -24,7 +24,8 @@ public interface RecipientService extends RemoteService
 	public void updateRecipient(EmailRecipient recipient)
 			throws IllegalArgumentException;
 
-	public boolean removeRecipient(Recipient recipient);
+	public void removeRecipient(Recipient recipient)
+			throws IllegalArgumentException;
 
 	public List<Recipient> getRecipients();
 }

@@ -1,27 +1,15 @@
-package net.brainvitamins.timeout.client;
+package net.brainvitamins.timeout.client.parsers;
 
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Cancellation;
 import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.Timeout;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 
-// These exist as behaviors on the client side instead of type constructors
-// because GWT uses a different (incompatible) DateFormat class on the client
-// side
-
-// JSON is not used because the author is not aware of a simple way to map
-// abstract JSON representations to concrete Java types, (e.g. given a JSON
-// representation of an Activity, determine that it represents a Checkin)
-
-public class ActivityParser implements Parser<Activity>
+public class ActivityParser extends DataOperationParser<Activity>
 {
-	public static DateTimeFormat dateFormat = DateTimeFormat
-			.getFormat("dd MMM yyyy HH:mm:ss zzz");
-
 	// there's no reason for more than one instance to exist
 	public static final ActivityParser Instance = new ActivityParser();
 
@@ -30,15 +18,16 @@ public class ActivityParser implements Parser<Activity>
 	}
 
 	@Override
-	public Activity parse(String asString)
+	public Activity parseItem(String asString)
 	{
-		if (asString.startsWith("Checkin")) return parseCheckin(asString);
-		if (asString.startsWith("Cancellation"))
+		if (asString.startsWith("Checkin"))
+			return parseCheckin(asString);
+		else if (asString.startsWith("Cancellation"))
 			return parseCancellation(asString);
-		if (asString.startsWith("Timeout"))
+		else if (asString.startsWith("Timeout"))
 			return parseTimeout(asString);
 		else
-			return null;
+			throw new IllegalArgumentException("Unrecognized activity type.");
 	}
 
 	// rargh, these should live on the types that generate the string
@@ -50,7 +39,9 @@ public class ActivityParser implements Parser<Activity>
 	private static Checkin parseCheckin(String asString)
 	{
 		MatchResult result = RegExp.compile(checkinRegExp).exec(asString);
-		if (result == null) return null;
+		if (result == null)
+			throw new IllegalArgumentException(
+					"Unrecognized Checkin string representation.");
 
 		return new Checkin(dateFormat.parse(result.getGroup(1)),
 				Long.parseLong(result.getGroup(2)));
@@ -59,14 +50,19 @@ public class ActivityParser implements Parser<Activity>
 	private static Cancellation parseCancellation(String asString)
 	{
 		MatchResult result = RegExp.compile(cancellationRegExp).exec(asString);
-		if (result == null) return null;
+		if (result == null)
+			throw new IllegalArgumentException(
+					"Unrecognized Cancellation string representation.");
+
 		return new Cancellation(dateFormat.parse(result.getGroup(1)));
 	}
 
 	private static Timeout parseTimeout(String asString)
 	{
 		MatchResult result = RegExp.compile(timeoutRegExp).exec(asString);
-		if (result == null) return null;
+		if (result == null)
+			throw new IllegalArgumentException(
+					"Unrecognized Timeout string representation.");
 
 		return new Timeout(dateFormat.parse(result.getGroup(1)),
 				Long.parseLong(result.getGroup(2)), dateFormat.parse(result

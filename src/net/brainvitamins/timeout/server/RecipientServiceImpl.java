@@ -16,6 +16,9 @@ import javax.validation.constraints.NotNull;
 import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
 import net.brainvitamins.timeout.shared.Timeout;
+import net.brainvitamins.timeout.shared.operations.CreateOperation;
+import net.brainvitamins.timeout.shared.operations.DeleteOperation;
+import net.brainvitamins.timeout.shared.operations.UpdateOperation;
 import net.brainvitamins.timeout.shared.services.RecipientService;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -24,8 +27,6 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		RecipientService
 {
 	private static final long serialVersionUID = 6581374344337957491L;
-
-	public static final String recipientKindIdentifier = "Recipient";
 
 	@Override
 	public void addRecipient(@NotNull Recipient recipient)
@@ -48,9 +49,9 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		// -delivery succeeds but adding the recipient to the app engine
 		// database fails
 
-		requestConfirmation(recipient, Utilities.getCurrentUser());
-
 		addRecipientCore(recipient);
+
+		requestConfirmation(recipient, Utilities.getCurrentUser());
 	}
 
 	/**
@@ -61,7 +62,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		RecipientOperations.addRecipient(recipient,
 				Utilities.getCurrentUserHashedId());
 		RecipientOperations.pushToClient(getThreadLocalRequest().getSession()
-				.getId(), recipient, DataOperation.CREATE);
+				.getId(), new CreateOperation<Recipient>(recipient));
 	}
 
 	@Override
@@ -109,11 +110,12 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		RecipientOperations.updateRecipient(recipient,
 				Utilities.getCurrentUserHashedId());
 		RecipientOperations.pushToClient(getThreadLocalRequest().getSession()
-				.getId(), recipient, DataOperation.UPDATE);
+				.getId(), new UpdateOperation<Recipient>(recipient));
 	}
 
 	@Override
-	public boolean removeRecipient(@NotNull Recipient recipient)
+	public void removeRecipient(@NotNull Recipient recipient)
+			throws IllegalArgumentException
 	{
 		validateRecipient(recipient);
 
@@ -125,18 +127,22 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 			User currentUser = pm.getObjectById(User.class,
 					Utilities.getCurrentUserHashedId());
 
-			boolean result = false;
 			Recipient ref = RecipientOperations.getDatabaseReference(recipient,
 					currentUser.getRecipients());
 
-			if (ref != null) result = currentUser.getRecipients().remove(ref);
-
-			return result;
+			if (ref == null)
+				throw new IllegalArgumentException(
+						"Recipient not found in database");
+			else
+				currentUser.getRecipients().remove(ref);
 		}
 		finally
 		{
 			pm.close();
 		}
+
+		RecipientOperations.pushToClient(getThreadLocalRequest().getSession()
+				.getId(), new DeleteOperation<Recipient>(recipient));
 	}
 
 	/**
@@ -194,12 +200,18 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	private void requestConfirmation(EmailRecipient recipient, User user)
 			throws UnsupportedEncodingException
 	{
+		// sanity check: the recipient needs an assigned data key before we send
+		// out a confirmation request
+		if (recipient.getKey() == null)
+			throw new IllegalStateException(
+					"Recipient must have a non-null database key before confirmation can be requested.");
+
 		HttpServletRequest request = this.getThreadLocalRequest();
 
 		String verificationURL = "http://" + request.getServerName() + ":"
 				+ request.getServerPort() + "/timeout/verification?userId="
-				+ user.getId() + "&recipientId=" + recipient.hashCode();
-		System.out.println("URL: " + verificationURL);
+				+ user.getId() + "&recipientId=" + recipient.getKey();
+		System.out.println("Confirmation Request URL: " + verificationURL);
 
 		try
 		{

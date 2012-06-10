@@ -26,6 +26,7 @@ public class Cancellation extends Activity implements Serializable
 	 * 
 	 * @see java.lang.Object#toString()
 	 */
+	@SuppressWarnings("deprecation")
 	@Override
 	public String toString()
 	{

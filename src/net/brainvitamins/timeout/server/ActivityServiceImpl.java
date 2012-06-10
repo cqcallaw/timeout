@@ -23,9 +23,6 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 {
 	private Queue queue = QueueFactory.getDefaultQueue();
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3820757361541824185L;
 
 	@Override
@@ -52,7 +49,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 			return activityLog;
 		}
 
-		//TODO: this may be unnecessary and inefficient.
+		// TODO: this may be unnecessary and inefficient.
 		Collections.sort(currentUser.getActivityLog(),
 				new Comparator<Activity>()
 				{

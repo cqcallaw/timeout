@@ -19,7 +19,7 @@ public class VerificationServlet extends HttpServlet
 			throws IllegalArgumentException, IOException
 	{
 		String userId = req.getParameter("userId");
-		int recipientId = Integer.parseInt(req.getParameter("recipientId"));
+		String recipientId = req.getParameter("recipientId");
 
 		if (userId == null)
 			throw new IllegalArgumentException("userId cannot be null.");
@@ -37,7 +37,7 @@ public class VerificationServlet extends HttpServlet
 			Set<Recipient> recipients = user.getRecipients();
 			for (Recipient recipient : recipients)
 			{
-				if (recipient.hashCode() == recipientId)
+				if (recipient.getKey().equals(recipientId))
 				{
 					RecipientOperations.updateRecipient(
 							recipient.withVerified(true), userId);
@@ -50,6 +50,8 @@ public class VerificationServlet extends HttpServlet
 
 			out.write(foundRecipient ? "Thanks! Address confirmed."
 					: "Address not found.");
+
+			// TODO: figure out a way to push the confirmation to the client
 		}
 		finally
 		{

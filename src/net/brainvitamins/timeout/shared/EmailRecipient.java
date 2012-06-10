@@ -43,8 +43,7 @@ public class EmailRecipient extends Recipient implements Serializable
 	}
 
 	/**
-	 * Constructor for clone operations and reconstitution (doesn't set the
-	 * database keys)
+	 * Constructor for initial construction (doesn't set the database key)
 	 * 
 	 * Use this constructor with care: setting "isVerified" to true should
 	 * generally be an automated process.
@@ -62,9 +61,10 @@ public class EmailRecipient extends Recipient implements Serializable
 	}
 
 	/**
-	 * Protected constructor to enable withProperty method chaining
+	 * Constructor to for withProperty method chaining, cloning, and
+	 * reconstitution
 	 */
-	protected EmailRecipient(@NotNull String name, @NotNull String address,
+	public EmailRecipient(@NotNull String name, @NotNull String address,
 			boolean verified, String dbKey)
 	{
 		super(name, dbKey);
@@ -85,9 +85,14 @@ public class EmailRecipient extends Recipient implements Serializable
 	}
 
 	@Override
+	/**
+	 * Clone the recipient--does *not* copy the dbKey.
+	 */
 	public Recipient clone()
 	{
-		return new EmailRecipient(getName(), getAddress(), isVerified());
+		EmailRecipient result = new EmailRecipient(getName(), getAddress(),
+				isVerified());
+		return result;
 	}
 
 	public EmailRecipient withAddress(String address)
@@ -104,7 +109,7 @@ public class EmailRecipient extends Recipient implements Serializable
 	public String toString()
 	{
 		return "EmailRecipient [name=" + getName() + ", address=" + address
-				+ ", verified=" + verified + "]";
+				+ ", verified=" + verified + ", dbKey=" + getKey() + "]";
 	}
 
 	/*

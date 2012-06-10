@@ -3,12 +3,11 @@ package net.brainvitamins.timeout.server;
 import javax.jdo.PersistenceManager;
 
 import net.brainvitamins.timeout.shared.Activity;
+import net.brainvitamins.timeout.shared.operations.CreateOperation;
 
 import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class ActivityOperations
 {
@@ -42,7 +41,7 @@ public class ActivityOperations
 
 		String channelKey = sessionId + ":activity";
 
-		channelService.sendMessage(new ChannelMessage(channelKey, activity
-				.toString()));
+		channelService.sendMessage(new ChannelMessage(channelKey,
+				new CreateOperation<Activity>(activity).toString()));
 	}
 }

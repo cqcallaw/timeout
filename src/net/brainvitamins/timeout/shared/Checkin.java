@@ -6,9 +6,6 @@ import java.util.Date;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
-import com.google.gwt.regexp.shared.MatchResult;
-import com.google.gwt.regexp.shared.RegExp;
-
 @PersistenceCapable
 public class Checkin extends Activity implements Serializable
 {
@@ -43,6 +40,7 @@ public class Checkin extends Activity implements Serializable
 	 * 
 	 * @see java.lang.Object#toString()
 	 */
+	@SuppressWarnings("deprecation")
 	@Override
 	public String toString()
 	{

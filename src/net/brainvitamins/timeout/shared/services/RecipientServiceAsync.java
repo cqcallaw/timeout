@@ -19,5 +19,5 @@ public interface RecipientServiceAsync
 
 	void getRecipients(AsyncCallback<List<Recipient>> callback);
 
-	void removeRecipient(Recipient recipient, AsyncCallback<Boolean> callback);
+	void removeRecipient(Recipient recipient, AsyncCallback<Void> callback);
 }

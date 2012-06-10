@@ -4,7 +4,5 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface ChannelServiceAsync
 {
-	void getActivityChannelToken(AsyncCallback<String> callback);
-
-	void getRecipientChannelToken(AsyncCallback<String> callback);
+	void getChannelToken(String tag, AsyncCallback<String> callback);
 }

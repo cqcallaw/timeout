@@ -17,6 +17,7 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -86,23 +87,21 @@ public class RemoveCell extends AbstractCell<Recipient>
 			{
 				logger.log(Level.INFO, "RemoveCell clicked.");
 				recipientService.removeRecipient(value,
-						new AsyncCallback<Boolean>()
+						new AsyncCallback<Void>()
 						{
 
 							@Override
-							public void onSuccess(Boolean result)
+							public void onSuccess(Void result)
 							{
-								if (result)
-									logger.log(Level.INFO, "Recipient removed.");
-								else
-									logger.log(Level.INFO, "Recipient removal failed.");
+								logger.log(Level.INFO, "Recipient removed.");
 							}
 
 							@Override
 							public void onFailure(Throwable caught)
 							{
 								// TODO Auto-generated method stub
-
+								Window.alert("Error removing recipient: "
+										+ caught.getMessage());
 							}
 						});
 			}

@@ -9,6 +9,7 @@ import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
 
+import net.brainvitamins.timeout.shared.operations.DataOperation;
 import net.brainvitamins.timeout.shared.Recipient;
 
 public class RecipientOperations
@@ -22,6 +23,7 @@ public class RecipientOperations
 	{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
+		Transaction tx = pm.currentTransaction();
 		try
 		{
 			User currentUser = pm.getObjectById(User.class, userId);
@@ -30,8 +32,15 @@ public class RecipientOperations
 
 			recipients.add(recipient);
 		}
+
 		finally
 		{
+			if (tx.isActive())
+			{
+				// TODO: better logging support
+				System.out.println("Adding " + recipient + " failed.");
+				tx.rollback();
+			}
 			pm.close();
 		}
 	}
@@ -55,25 +64,15 @@ public class RecipientOperations
 			Transaction tx = pm.currentTransaction();
 			try
 			{
+				// get a db reference (value equality isn't a sufficient
+				// guarantee of uniqueness, since it doesn't compare database
+				// keys)
 				dbReference = getDatabaseReference(recipient, recipients);
-
-				// this is an elaborate hack to maintain the immutability of
-				// shared data types
-				// The add precedes the remove so the remove operation
-				// doesn't run afoul of
-				// "Cannot read fields from a deleted object" errors from
-				// DataNucleus.
-				// The logic goes:
-				// -add an exact duplicate (sans database key)
-				// -remove the previous persisted Recipient by reference
-				// there's almost certainly a better way to handle this;
-				// I just don't see it right now.
 
 				if (dbReference != null)
 				{
 					tx.begin();
-					recipients.add(recipient.clone());
-					recipients.remove(dbReference);
+					recipients.add(recipient); // that is, overwrite
 					tx.commit();
 				}
 				else
@@ -98,8 +97,8 @@ public class RecipientOperations
 		}
 	}
 
-	public static void pushToClient(String sessionId, Recipient recipient,
-			DataOperation operation)
+	public static <T> void pushToClient(String sessionId,
+			DataOperation<Recipient> operation)
 	{
 		ChannelService channelService = ChannelServiceFactory
 				.getChannelService();
@@ -109,8 +108,7 @@ public class RecipientOperations
 		channelService.sendMessage(new ChannelMessage(channelKey, operation
 				.toString()));
 
-		channelService.sendMessage(new ChannelMessage(channelKey, recipient
-				.toString()));
+		System.out.println(operation.toString());
 	}
 
 	/**
