@@ -13,8 +13,6 @@ public interface RecipientServiceAsync
 
 	void addRecipient(EmailRecipient recipient, AsyncCallback<Void> callback);
 
-	void updateRecipient(Recipient recipient, AsyncCallback<Void> callback);
-
 	void updateRecipient(EmailRecipient recipient, AsyncCallback<Void> callback);
 
 	void getRecipients(AsyncCallback<List<Recipient>> callback);

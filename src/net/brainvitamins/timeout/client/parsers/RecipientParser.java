@@ -31,10 +31,12 @@ public class RecipientParser extends DataOperationParser<Recipient>
 					"Unrecognized EmailRecipient string representation.");
 
 		return new EmailRecipient(result.getGroup(1), result.getGroup(2),
-				Boolean.parseBoolean(result.getGroup(3)), result.getGroup(4));
+				result.getGroup(3), Boolean.parseBoolean(result.getGroup(4)));
 	}
 
-	public static final String emailRecipientRegExpString = "EmailRecipient \\[name=(.*), address=(.*), verified=(.*), dbKey=(.*)\\]";
+	// public static final String emailRecipientRegExpString =
+	// "EmailRecipient \\[name=(.*), address=(.*), verified=(.*), dbKey=(.*)\\]";
+	public static final String emailRecipientRegExpString = "EmailRecipient \\[key=(.*), name=(.*), address=(.*), verified=(.*)\\]";
 
 	public static final RegExp emailRecipientRegExp = RegExp
 			.compile(emailRecipientRegExpString);

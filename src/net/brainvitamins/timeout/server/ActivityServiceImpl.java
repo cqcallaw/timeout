@@ -32,15 +32,12 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 			throw new IllegalArgumentException(
 					"sizeLimit must greater than or equal to 1.");
 
-		User currentUser = Utilities.getCurrentUserWithActivity();
-
-		List<Activity> activityLog = new ArrayList<Activity>();
+		User currentUser = UserOperations.getCurrentUserWithActivity();
 
 		if (currentUser == null)
-		{
-			System.out.println("Invalid user!");
-			return activityLog;
-		}
+			throw new IllegalStateException("Cannot obtain current user.");
+
+		List<Activity> activityLog = new ArrayList<Activity>();
 
 		if (currentUser.getActivityLog() == null)
 		{
@@ -93,7 +90,13 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String time = dateFormat.format(timestamp);
 		// String userId = Utilities.getCurrentUserHashedId();
-		User user = Utilities.getCurrentUser();
+		User user = UserOperations.getCurrentUser();
+
+		if (user == null)
+		{
+			throw new IllegalStateException("Unable to obtain current user.");
+		}
+
 		String userId = user.getId();
 
 		String sessionId = getThreadLocalRequest().getSession().getId();
@@ -119,7 +122,11 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 	@Override
 	public void cancelCheckin() throws IllegalStateException
 	{
-		User user = Utilities.getCurrentUserWithActivity();
+		User user = UserOperations.getCurrentUserWithActivity();
+
+		if (user == null)
+			throw new IllegalStateException("Cannot obtain current user.");
+
 		String userId = user.getId();
 
 		cancelCheckin(userId);

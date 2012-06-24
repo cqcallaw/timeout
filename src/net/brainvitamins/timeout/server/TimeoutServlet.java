@@ -1,14 +1,18 @@
 package net.brainvitamins.timeout.server;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.brainvitamins.timeout.shared.EmailRecipient;
+import net.brainvitamins.timeout.shared.Recipient;
 import net.brainvitamins.timeout.shared.Timeout;
 
 /**
@@ -54,12 +58,64 @@ public class TimeoutServlet extends HttpServlet
 
 			ActivityOperations.log(userId, activity);
 
+			User user = UserOperations.getUserWithRecipients(userId);
+
+			if (user == null)
+				throw new IllegalArgumentException("Invalid user specified.");
+
+			for (Recipient recipient : user.getRecipients())
+			{
+				if (recipient instanceof EmailRecipient)
+				{
+					EmailRecipient emailRecipient = (EmailRecipient) recipient;
+					if (emailRecipient.isVerified())
+					{
+						try
+						{
+							sendNotification(emailRecipient, user, activity);
+						}
+						catch (UnsupportedEncodingException e)
+						{
+							System.out
+									.println("Unsupported encoding exception while sending notification to recipient "
+											+ emailRecipient.toString()
+											+ ": "
+											+ e.getMessage());
+						}
+						catch (MessagingException e)
+						{
+							System.out
+									.println("Failed to send notification to recipient "
+											+ emailRecipient.toString()
+											+ ": "
+											+ e.getMessage());
+						}
+					}
+				}
+				// TODO: handle non-email recipients
+			}
+
 			ActivityOperations.pushToClient(sourceSessionId, activity);
 		}
 		catch (ParseException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Failed to parse timestamp: "
+					+ startTimeParameter);
 		}
+	}
+
+	private void sendNotification(EmailRecipient recipient, User user,
+			Timeout timeout) throws UnsupportedEncodingException,
+			MessagingException
+	{
+		MailOperations
+				.sendMessage(
+						"Timeout notification",
+						"User " + user.getNickname() + "checked in at "
+								+ timeout.getStartTime()
+								+ ". This checkin timed out at "
+								+ timeout.getTimestamp(), recipient.getName(),
+						recipient.getAddress(), "The Admin",
+						"admin@---appspotmail.com");
 	}
 }

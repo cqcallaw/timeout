@@ -26,6 +26,10 @@ public class MailOperations
 				name));
 		msg.setSubject(subject);
 		msg.setText(body);
+
+		System.out.println("Sending message from " + fromAddress + " to "
+				+ address);
 		Transport.send(msg);
+		System.out.println("Message sent.");
 	}
 }

@@ -18,9 +18,6 @@ public interface RecipientService extends RemoteService
 	public void addRecipient(EmailRecipient recipient)
 			throws IllegalArgumentException, UnsupportedEncodingException;
 
-	public void updateRecipient(Recipient recipient)
-			throws IllegalArgumentException;
-
 	public void updateRecipient(EmailRecipient recipient)
 			throws IllegalArgumentException;
 

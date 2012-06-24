@@ -9,7 +9,7 @@ import javax.jdo.PersistenceManager;
 
 import com.google.appengine.api.users.UserServiceFactory;
 
-public class Utilities
+public class UserOperations
 {
 	/**
 	 * Returns a detached copy of the current User data object. The activity log
@@ -17,11 +17,15 @@ public class Utilities
 	 */
 	public static User getCurrentUser()
 	{
+		return getUser(getCurrentUserHashedId());
+	}
+
+	public static User getUser(String userId)
+	{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try
 		{
-			User currentUser = pm.getObjectById(User.class,
-					Utilities.getCurrentUserHashedId());
+			User currentUser = pm.getObjectById(User.class, userId);
 			User detached = pm.detachCopy(currentUser);
 			return detached;
 		}
@@ -40,12 +44,16 @@ public class Utilities
 	 */
 	public static User getCurrentUserWithActivity()
 	{
+		return getUserWithActivity(UserOperations.getCurrentUserHashedId());
+	}
+
+	public static User getUserWithActivity(String userId)
+	{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		pm.getFetchPlan().addGroup("withActivityLog");
 		try
 		{
-			User currentUser = pm.getObjectById(User.class,
-					Utilities.getCurrentUserHashedId());
+			User currentUser = pm.getObjectById(User.class, userId);
 
 			User detached = pm.detachCopy(currentUser);
 			return detached;
@@ -65,12 +73,16 @@ public class Utilities
 	 */
 	public static User getCurrentUserWithRecipients()
 	{
+		return getUserWithRecipients(getCurrentUserHashedId());
+	}
+
+	public static User getUserWithRecipients(String userId)
+	{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		pm.getFetchPlan().addGroup("withRecipients");
 		try
 		{
-			User currentUser = pm.getObjectById(User.class,
-					Utilities.getCurrentUserHashedId());
+			User currentUser = pm.getObjectById(User.class, userId);
 
 			User detached = pm.detachCopy(currentUser);
 			return detached;
@@ -91,10 +103,15 @@ public class Utilities
 	 */
 	public static String getCurrentUserHashedId()
 	{
-		return hashUserId(getGWTUser().getUserId());
+		com.google.appengine.api.users.User currentGWTUser = getCurrentGWTUser();
+
+		if (currentGWTUser == null)
+			throw new IllegalStateException("Unable to obtain current user.");
+
+		return hashUserId(currentGWTUser.getUserId());
 	}
 
-	public static com.google.appengine.api.users.User getGWTUser()
+	public static com.google.appengine.api.users.User getCurrentGWTUser()
 	{
 		return UserServiceFactory.getUserService().getCurrentUser();
 	}
@@ -107,6 +124,11 @@ public class Utilities
 	 */
 	public static String hashUserId(String userId)
 	{
+		// System.out.println("Hashing userId: " + userId);
+		// String result = BCrypt.hashpw(userId, BCrypt.gensalt(4));
+		// System.out.println("userId hashed: " + result);
+		//
+		// return result;
 		try
 		{
 			MessageDigest md = MessageDigest.getInstance("SHA-512");
@@ -117,7 +139,6 @@ public class Utilities
 		catch (NoSuchAlgorithmException e)
 		{
 			// SHA *should* always be available.
-			// see
 			// http://docs.oracle.com/javase/6/docs/technotes/guides/security/StandardNames.html#MessageDigest
 			throw new AssertionError("SHA-512 unknown.");
 		}

@@ -54,7 +54,7 @@ public abstract class Recipient implements Serializable
 	/*
 	 * Protected constructor for withProperty method chaining
 	 */
-	protected Recipient(@NotNull String name, String dbKey)
+	protected Recipient(String dbKey, @NotNull String name)
 	{
 		this(name);
 		this.key = dbKey;

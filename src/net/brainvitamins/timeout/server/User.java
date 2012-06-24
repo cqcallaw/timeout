@@ -7,6 +7,8 @@ import java.util.Set;
 
 import javax.jdo.annotations.FetchGroup;
 import javax.jdo.annotations.FetchGroups;
+import javax.jdo.annotations.Order;
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
@@ -31,9 +33,11 @@ public class User
 	private String nickname;
 
 	@Persistent(dependentElement = "true")
+	@Order(extensions = @Extension(vendorName = "datanucleus", key = "list-ordering", value = "timestamp desc"))
 	private List<Activity> activityLog;
 
 	@Persistent(dependentElement = "true")
+	@Order(extensions = @Extension(vendorName = "datanucleus", key = "list-ordering", value = "name asc"))
 	private Set<Recipient> recipients;
 
 	public String getNickname()
@@ -59,10 +63,16 @@ public class User
 		return recipients;
 	}
 
+	/**
+	 * 
+	 * @param userId
+	 *            the GAE userId
+	 * @param nickname
+	 */
 	public User(String userId, String nickname)
 	{
 		super();
-		this.id = Utilities.hashUserId(userId);
+		this.id = UserOperations.hashUserId(userId);
 		this.nickname = nickname;
 		activityLog = new ArrayList<Activity>();
 		recipients = new HashSet<Recipient>();

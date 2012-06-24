@@ -24,7 +24,7 @@ public abstract class Activity implements Serializable
 
 	private static final long serialVersionUID = 3009614156402312511L;
 
-	@Persistent(defaultFetchGroup = "true")
+	@Persistent
 	private Date timestamp;
 
 	public Date getTimestamp()

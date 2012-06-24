@@ -64,10 +64,14 @@ public class EmailRecipient extends Recipient implements Serializable
 	 * Constructor to for withProperty method chaining, cloning, and
 	 * reconstitution
 	 */
-	public EmailRecipient(@NotNull String name, @NotNull String address,
-			boolean verified, String dbKey)
+	public EmailRecipient(@NotNull String dbKey, @NotNull String name,
+			@NotNull String address, boolean verified)
 	{
-		super(name, dbKey);
+		super(dbKey, name);
+
+		if (address == null)
+			throw new IllegalArgumentException("Address can't be null");
+
 		this.address = address;
 		this.verified = verified;
 	}
@@ -75,13 +79,19 @@ public class EmailRecipient extends Recipient implements Serializable
 	@Override
 	public EmailRecipient withName(String name)
 	{
-		return new EmailRecipient(name, getAddress(), isVerified(), getKey());
+		return new EmailRecipient(getKey(), name, getAddress(), isVerified());
 	}
 
 	@Override
 	public EmailRecipient withVerified(boolean verified)
 	{
-		return new EmailRecipient(getName(), getAddress(), verified, getKey());
+		return new EmailRecipient(getKey(), getName(), getAddress(), verified);
+	}
+
+	public EmailRecipient withAddress(String address)
+	{
+		//changing the address automatically sets isVerified to false
+		return new EmailRecipient(getKey(), getName(), address, false);
 	}
 
 	@Override
@@ -95,11 +105,6 @@ public class EmailRecipient extends Recipient implements Serializable
 		return result;
 	}
 
-	public EmailRecipient withAddress(String address)
-	{
-		return new EmailRecipient(getName(), address, isVerified(), getKey());
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -108,8 +113,8 @@ public class EmailRecipient extends Recipient implements Serializable
 	@Override
 	public String toString()
 	{
-		return "EmailRecipient [name=" + getName() + ", address=" + address
-				+ ", verified=" + verified + ", dbKey=" + getKey() + "]";
+		return "EmailRecipient [key=" + getKey() + ", name=" + getName()
+				+ ", address=" + address + ", verified=" + verified + "]";
 	}
 
 	/*
@@ -123,6 +128,7 @@ public class EmailRecipient extends Recipient implements Serializable
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((address == null) ? 0 : address.hashCode());
+		result = prime * result + (verified ? 1231 : 1237);
 		return result;
 	}
 
@@ -143,6 +149,7 @@ public class EmailRecipient extends Recipient implements Serializable
 			if (other.address != null) return false;
 		}
 		else if (!address.equals(other.address)) return false;
+		if (verified != other.verified) return false;
 		return true;
 	}
 }

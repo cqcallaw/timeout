@@ -10,6 +10,7 @@ import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
 
 import net.brainvitamins.timeout.shared.operations.DataOperation;
+import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
 
 public class RecipientOperations
@@ -27,6 +28,10 @@ public class RecipientOperations
 		try
 		{
 			User currentUser = pm.getObjectById(User.class, userId);
+			if (currentUser == null)
+			{
+				throw new IllegalArgumentException("Invalid userId.");
+			}
 
 			Set<Recipient> recipients = currentUser.getRecipients();
 
@@ -47,46 +52,35 @@ public class RecipientOperations
 
 	/**
 	 * @param recipient
-	 * @param userId
-	 *            the hashed userId
 	 */
-	public static void updateRecipient(Recipient recipient, String userId)
+	public static void updateRecipient(EmailRecipient updatedRecipient)
 	{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		try
 		{
-			User currentUser = pm.getObjectById(User.class, userId);
+			EmailRecipient currentRecipient = pm.getObjectById(
+					EmailRecipient.class, updatedRecipient.getKey());
 
-			Set<Recipient> recipients = currentUser.getRecipients();
+			if (currentRecipient == null)
+			{
+				throw new IllegalArgumentException("Invalid recipient.");
+			}
 
-			Recipient dbReference = null;
 			Transaction tx = pm.currentTransaction();
 			try
 			{
-				// get a db reference (value equality isn't a sufficient
-				// guarantee of uniqueness, since it doesn't compare database
-				// keys)
-				dbReference = getDatabaseReference(recipient, recipients);
-
-				if (dbReference != null)
-				{
-					tx.begin();
-					recipients.add(recipient); // that is, overwrite
-					tx.commit();
-				}
-				else
-				{
-					throw new IllegalArgumentException("Invalid recipient.");
-				}
+				tx.begin();
+				pm.makePersistent(updatedRecipient); // overwrite old object
+				tx.commit();
 			}
 			finally
 			{
 				if (tx.isActive())
 				{
 					// TODO: better logging support
-					System.out.println("Update of " + dbReference + " to "
-							+ recipient + " failed.");
+					System.out.println("Update of " + currentRecipient + " to "
+							+ updatedRecipient + " failed.");
 					tx.rollback();
 				}
 			}

@@ -27,7 +27,7 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 
 		if (user != null)
 		{
-			User userDataObject = Utilities.getCurrentUser();
+			User userDataObject = UserOperations.getCurrentUser();
 			if (userDataObject == null)
 			{
 				PersistenceManager pm = PMF.get().getPersistenceManager();

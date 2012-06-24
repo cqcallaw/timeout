@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.jdo.PersistenceManager;
-import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +14,6 @@ import javax.validation.constraints.NotNull;
 
 import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
-import net.brainvitamins.timeout.shared.Timeout;
 import net.brainvitamins.timeout.shared.operations.CreateOperation;
 import net.brainvitamins.timeout.shared.operations.DeleteOperation;
 import net.brainvitamins.timeout.shared.operations.UpdateOperation;
@@ -34,7 +32,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	{
 		validateRecipient(recipient);
 
-		addRecipientCore(recipient);
+		addRecipientCore(recipient, null);
 	}
 
 	@Override
@@ -49,18 +47,32 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		// -delivery succeeds but adding the recipient to the app engine
 		// database fails
 
-		addRecipientCore(recipient);
+		User currentUser = UserOperations.getCurrentUser();
 
-		requestConfirmation(recipient, Utilities.getCurrentUser());
+		if (currentUser == null)
+		{
+			throw new IllegalStateException("Unable to obtain current user.");
+		}
+
+		addRecipientCore(recipient, currentUser.getId());
+
+		HttpServletRequest request = this.getThreadLocalRequest();
+
+		ConfirmationRequestOperations.sendConfirmationRequest(recipient,
+				currentUser, "http://" + request.getServerName() + ":"
+						+ request.getServerPort()
+						+ "/timeout/confirmation/email");
+
 	}
 
 	/**
 	 * @param recipient
+	 * @param userId
+	 *            TODO
 	 */
-	private void addRecipientCore(@NotNull Recipient recipient)
+	private void addRecipientCore(@NotNull Recipient recipient, String userId)
 	{
-		RecipientOperations.addRecipient(recipient,
-				Utilities.getCurrentUserHashedId());
+		RecipientOperations.addRecipient(recipient, userId);
 		RecipientOperations.pushToClient(getThreadLocalRequest().getSession()
 				.getId(), new CreateOperation<Recipient>(recipient));
 	}
@@ -68,8 +80,15 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	@Override
 	public List<Recipient> getRecipients()
 	{
-		List<Recipient> result = new ArrayList<Recipient>(Utilities
-				.getCurrentUserWithRecipients().getRecipients());
+		User currentUser = UserOperations.getCurrentUserWithRecipients();
+
+		if (currentUser == null)
+		{
+			throw new IllegalStateException("Unable to obtain current user.");
+		}
+
+		List<Recipient> result = new ArrayList<Recipient>(
+				currentUser.getRecipients());
 
 		// sort by name, descending
 		Collections.sort(result, new Comparator<Recipient>()
@@ -85,30 +104,11 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	}
 
 	@Override
-	public void updateRecipient(@NotNull Recipient recipient)
-			throws IllegalArgumentException
-	{
-		validateRecipient(recipient);
-
-		updateRecipientCore(recipient);
-	}
-
-	@Override
 	public void updateRecipient(@NotNull EmailRecipient recipient)
 			throws IllegalArgumentException
 	{
 		validateRecipient(recipient);
-
-		updateRecipientCore(recipient);
-	}
-
-	/**
-	 * @param recipient
-	 */
-	private void updateRecipientCore(Recipient recipient)
-	{
-		RecipientOperations.updateRecipient(recipient,
-				Utilities.getCurrentUserHashedId());
+		RecipientOperations.updateRecipient(recipient);
 		RecipientOperations.pushToClient(getThreadLocalRequest().getSession()
 				.getId(), new UpdateOperation<Recipient>(recipient));
 	}
@@ -125,7 +125,12 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		try
 		{
 			User currentUser = pm.getObjectById(User.class,
-					Utilities.getCurrentUserHashedId());
+					UserOperations.getCurrentUserHashedId());
+
+			if (currentUser == null)
+			{
+				throw new IllegalArgumentException("Invalid userId.");
+			}
 
 			Recipient ref = RecipientOperations.getDatabaseReference(recipient,
 					currentUser.getRecipients());
@@ -178,54 +183,4 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		}
 	}
 
-	private void sendNotification(EmailRecipient recipient, User user,
-			Timeout timeout) throws UnsupportedEncodingException,
-			MessagingException
-	{
-		MailOperations
-				.sendMessage(
-						"Timeout notification",
-						"User " + user.getNickname() + "checked in at "
-								+ timeout.getStartTime()
-								+ ". This checkin timed out at "
-								+ timeout.getTimestamp(), recipient.getName(),
-						recipient.getAddress(), "The Admin",
-						"admin@---appspotmail.com");
-	}
-
-	/*
-	 * ref: http://stackoverflow.com/a/415971/577298
-	 * http://stackoverflow.com/a/10604659/577298
-	 */
-	private void requestConfirmation(EmailRecipient recipient, User user)
-			throws UnsupportedEncodingException
-	{
-		// sanity check: the recipient needs an assigned data key before we send
-		// out a confirmation request
-		if (recipient.getKey() == null)
-			throw new IllegalStateException(
-					"Recipient must have a non-null database key before confirmation can be requested.");
-
-		HttpServletRequest request = this.getThreadLocalRequest();
-
-		String verificationURL = "http://" + request.getServerName() + ":"
-				+ request.getServerPort() + "/timeout/verification?userId="
-				+ user.getId() + "&recipientId=" + recipient.getKey();
-		System.out.println("Confirmation Request URL: " + verificationURL);
-
-		try
-		{
-			MailOperations
-					.sendMessage(
-							"Recipient confirmation",
-							"User has added you as a recipient of timeout notifications",
-							recipient.getName(), recipient.getAddress(),
-							"The Admin", "admin@---appspotmail.com");
-		}
-		catch (MessagingException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }

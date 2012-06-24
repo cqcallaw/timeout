@@ -9,12 +9,9 @@ import javax.jdo.annotations.Persistent;
 @PersistenceCapable
 public class Timeout extends Activity implements Serializable
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 5435541820544915944L;
 
-	@Persistent(defaultFetchGroup = "true")
+	@Persistent
 	private long timeout;
 
 	public long getTimeout()
@@ -22,7 +19,7 @@ public class Timeout extends Activity implements Serializable
 		return timeout;
 	}
 
-	@Persistent(defaultFetchGroup = "true")
+	@Persistent
 	private Date startTime;
 
 	public Date getStartTime()

@@ -11,7 +11,7 @@ public class Checkin extends Activity implements Serializable
 {
 	private static final long serialVersionUID = -3016832144903168986L;
 
-	@Persistent(defaultFetchGroup = "true")
+	@Persistent
 	private long timeout;
 
 	public long getTimeout()

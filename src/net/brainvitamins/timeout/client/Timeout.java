@@ -79,7 +79,8 @@ public class Timeout implements EntryPoint
 		{
 			public void onFailure(Throwable error)
 			{
-				logger.log(Level.SEVERE, "Calling login service failed.");
+				logger.log(Level.SEVERE, "Calling login service failed:"
+						+ error.getMessage());
 			}
 
 			public void onSuccess(LoginInfo result)
@@ -143,13 +144,6 @@ public class Timeout implements EntryPoint
 				ActivityParser.Instance, new DataOperationHandler<Activity>()
 				{
 					@Override
-					public void update(Activity value)
-					{
-						throw new IllegalStateException(
-								"Activity should never been updated");
-					}
-
-					@Override
 					public void add(Activity value)
 					{
 						List<Activity> data = activityDataProvider.getList();
@@ -158,7 +152,14 @@ public class Timeout implements EntryPoint
 						newData.add(value);
 						data.addAll(0, newData);
 
-						data.remove(data.size() - 1);
+						if (data.size() > 5) data.remove(data.size() - 1);
+					}
+
+					@Override
+					public void update(Activity value)
+					{
+						throw new IllegalStateException(
+								"Activity should never been updated");
 					}
 
 					@Override
@@ -173,6 +174,14 @@ public class Timeout implements EntryPoint
 				RecipientParser.Instance, new DataOperationHandler<Recipient>()
 				{
 					@Override
+					public void add(Recipient value)
+					{
+						List<Recipient> data = recipientDataProvider.getList();
+						// TODO: sorting
+						data.add(value);
+					}
+
+					@Override
 					public void update(Recipient value)
 					{
 						List<Recipient> data = recipientDataProvider.getList();
@@ -185,14 +194,6 @@ public class Timeout implements EntryPoint
 								data.add(i, value);
 							}
 						}
-					}
-
-					@Override
-					public void add(Recipient value)
-					{
-						List<Recipient> data = recipientDataProvider.getList();
-						// TODO: sorting
-						data.add(value);
 					}
 
 					@Override
