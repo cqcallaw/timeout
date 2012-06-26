@@ -11,6 +11,7 @@ import java.util.TimeZone;
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Cancellation;
 import net.brainvitamins.timeout.shared.Checkin;
+import net.brainvitamins.timeout.shared.operations.CreateOperation;
 import net.brainvitamins.timeout.shared.services.ActivityService;
 
 import com.google.appengine.api.taskqueue.Queue;
@@ -116,7 +117,8 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 
 		ActivityOperations.log(userId, checkin);
 
-		ActivityOperations.pushToClient(sessionId, checkin);
+		PushOperations.pushToListener(sessionId, new CreateOperation<Activity>(
+				checkin));
 	}
 
 	@Override
@@ -140,8 +142,9 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 				Cancellation cancellation = new Cancellation();
 				ActivityOperations.log(userId, cancellation);
 
-				ActivityOperations.pushToClient(getThreadLocalRequest()
-						.getSession().getId(), cancellation);
+				PushOperations.pushToListener(getThreadLocalRequest()
+						.getSession().getId(), new CreateOperation<Activity>(
+						cancellation));
 			}
 			else
 			{

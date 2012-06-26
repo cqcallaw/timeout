@@ -6,5 +6,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("channel")
 public interface ChannelService extends RemoteService
 {
-	public String getChannelToken(String tag);
+	public String getChannelToken();
 }

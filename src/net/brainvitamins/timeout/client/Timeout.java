@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.brainvitamins.timeout.client.parsers.ActivityParser;
-import net.brainvitamins.timeout.client.parsers.DataOperationParser;
 import net.brainvitamins.timeout.client.parsers.RecipientParser;
 import net.brainvitamins.timeout.client.views.MainView;
 import net.brainvitamins.timeout.shared.Activity;
@@ -70,6 +69,76 @@ public class Timeout implements EntryPoint
 
 	private static Logger logger = Logger.getLogger("Main");
 
+	private static final ListDataProvider<Activity> activityDataProvider = new ListDataProvider<Activity>();
+	private static final ListDataProvider<Recipient> recipientDataProvider = new ListDataProvider<Recipient>();
+
+	private static final DataOperationHandler<Activity> activityDataOperationHandler = new DataOperationHandler<Activity>()
+	{
+		@Override
+		public void add(Activity value)
+		{
+			List<Activity> data = activityDataProvider.getList();
+
+			List<Activity> newData = new ArrayList<Activity>();
+			newData.add(value);
+			data.addAll(0, newData);
+
+			if (data.size() > 5) data.remove(data.size() - 1);
+		}
+
+		@Override
+		public void update(Activity value)
+		{
+			throw new IllegalStateException(
+					"Activity should never been updated");
+		}
+
+		@Override
+		public void delete(Activity value)
+		{
+			throw new IllegalStateException(
+					"Activity should never been deleted");
+		}
+	};
+
+	private static final DataOperationHandler<Recipient> recipientDataOperationHandler = new DataOperationHandler<Recipient>()
+	{
+		@Override
+		public void add(Recipient value)
+		{
+			List<Recipient> data = recipientDataProvider.getList();
+			// TODO: sorting
+			data.add(value);
+		}
+
+		@Override
+		public void update(Recipient value)
+		{
+			List<Recipient> data = recipientDataProvider.getList();
+
+			for (int i = 0; i < data.size(); i++)
+			{
+				if (data.get(i).getKey().equals(value.getKey()))
+				{
+					data.remove(i);
+					data.add(i, value);
+				}
+			}
+		}
+
+		@Override
+		public void delete(Recipient value)
+		{
+			List<Recipient> data = recipientDataProvider.getList();
+
+			for (int i = 0; i < data.size(); i++)
+			{
+				if (data.get(i).getKey().equals(value.getKey()))
+					data.remove(i);
+			}
+		}
+	};
+
 	public void onModuleLoad()
 	{
 		logger.log(Level.INFO, "Started module loading.");
@@ -120,9 +189,6 @@ public class Timeout implements EntryPoint
 				dateFormatInfo.timeFormatMedium(),
 				dateFormatInfo.dateFormatShort());
 
-		final ListDataProvider<Activity> activityDataProvider = new ListDataProvider<Activity>();
-		final ListDataProvider<Recipient> recipientDataProvider = new ListDataProvider<Recipient>();
-
 		// ugh, so wrong and backwards to initialize a view without having a
 		// data provider attached...
 		// visual layout editing fails otherwise, though
@@ -140,90 +206,12 @@ public class Timeout implements EntryPoint
 
 		getRecipients(recipientDataProvider);
 
-		bindChannelToDataProvider("activity", activityDataProvider,
-				ActivityParser.Instance, new DataOperationHandler<Activity>()
-				{
-					@Override
-					public void add(Activity value)
-					{
-						List<Activity> data = activityDataProvider.getList();
-
-						List<Activity> newData = new ArrayList<Activity>();
-						newData.add(value);
-						data.addAll(0, newData);
-
-						if (data.size() > 5) data.remove(data.size() - 1);
-					}
-
-					@Override
-					public void update(Activity value)
-					{
-						throw new IllegalStateException(
-								"Activity should never been updated");
-					}
-
-					@Override
-					public void delete(Activity value)
-					{
-						throw new IllegalStateException(
-								"Activity should never been deleted");
-					}
-				});
-
-		bindChannelToDataProvider("recipient", recipientDataProvider,
-				RecipientParser.Instance, new DataOperationHandler<Recipient>()
-				{
-					@Override
-					public void add(Recipient value)
-					{
-						List<Recipient> data = recipientDataProvider.getList();
-						// TODO: sorting
-						data.add(value);
-					}
-
-					@Override
-					public void update(Recipient value)
-					{
-						List<Recipient> data = recipientDataProvider.getList();
-
-						for (int i = 0; i < data.size(); i++)
-						{
-							if (data.get(i).getKey().equals(value.getKey()))
-							{
-								data.remove(i);
-								data.add(i, value);
-							}
-						}
-					}
-
-					@Override
-					public void delete(Recipient value)
-					{
-						List<Recipient> data = recipientDataProvider.getList();
-
-						for (int i = 0; i < data.size(); i++)
-						{
-							if (data.get(i).getKey().equals(value.getKey()))
-								data.remove(i);
-						}
-					}
-				});
-
-		logger.log(Level.INFO, "App loaded.");
-	}
-
-	private <T> void bindChannelToDataProvider(final String tag,
-			final ListDataProvider<T> dataProvider,
-			final DataOperationParser<T> parser,
-			final DataOperationHandler<T> handler)
-	{
-		channelService.getChannelToken(tag, new AsyncCallback<String>()
+		channelService.getChannelToken(new AsyncCallback<String>()
 		{
 			@Override
 			public void onSuccess(String result)
 			{
-				logger.log(Level.INFO, "[" + tag + "]" + "Got channel id: "
-						+ result);
+				logger.log(Level.INFO, "Got channel id: " + result);
 
 				ChannelFactory.createChannel(result,
 						new ChannelCreatedCallback()
@@ -236,24 +224,36 @@ public class Timeout implements EntryPoint
 									@Override
 									public void onOpen()
 									{
-										logger.log(Level.INFO, "[" + tag + "]"
-												+ "Channel opened.");
+										logger.log(Level.INFO,
+												"Channel opened.");
 									}
 
 									@Override
 									public void onMessage(String message)
 									{
-										logger.log(Level.INFO, "[" + tag + "]"
-												+ "Received message: "
-												+ message);
+										logger.log(Level.INFO,
+												"Received message: " + message);
 
-										DataOperation<T> dataOperation = parser
-												.parse(message);
-
-										logger.log(Level.INFO, "Parsed: "
-												+ dataOperation.toString());
-
-										handler.handleOperation(dataOperation);
+										// blargh, horrible way to do type
+										// resolution...
+										if (message.contains("Recipient"))
+										{
+											DataOperation<Recipient> dataOperation = RecipientParser.Instance
+													.parse(message);
+											recipientDataOperationHandler
+													.handleOperation(dataOperation);
+											logger.log(Level.INFO, "Parsed: "
+													+ dataOperation.toString());
+										}
+										else
+										{
+											DataOperation<Activity> dataOperation = ActivityParser.Instance
+													.parse(message);
+											activityDataOperationHandler
+													.handleOperation(dataOperation);
+											logger.log(Level.INFO, "Parsed: "
+													+ dataOperation.toString());
+										}
 									}
 
 									@Override
@@ -262,18 +262,15 @@ public class Timeout implements EntryPoint
 										// TODO: better communication with user
 										logger.log(
 												Level.INFO,
-												"["
-														+ tag
-														+ "]"
-														+ "Channel error: "
+												"Channel error: "
 														+ error.getDescription());
 									}
 
 									@Override
 									public void onClose()
 									{
-										logger.log(Level.INFO, "[" + tag + "]"
-												+ "Channel closed.");
+										logger.log(Level.INFO,
+												"Channel closed.");
 									}
 								});
 							}
@@ -283,10 +280,11 @@ public class Timeout implements EntryPoint
 			@Override
 			public void onFailure(Throwable caught)
 			{
-				Window.alert("[" + tag + "]" + "Error setting up channel: "
-						+ caught.getMessage());
+				Window.alert("Error setting up channel: " + caught.getMessage());
 			}
 		});
+
+		logger.log(Level.INFO, "App loaded.");
 	}
 
 	private void getRecipients(final ListDataProvider<Recipient> dataProvider)

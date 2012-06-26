@@ -10,11 +10,11 @@ public class ChannelServiceImpl extends RemoteServiceServlet implements
 	private static final long serialVersionUID = -4802678016948213228L;
 
 	@Override
-	public String getChannelToken(String tag)
+	public String getChannelToken()
 	{
 		// TODO: maintain a list of constructed channels
 
-		String clientId = getThreadLocalRequest().getSession().getId() + ":" + tag;
+		String clientId = getThreadLocalRequest().getSession().getId();
 
 		System.out.println("Generated channel client id: " + clientId);
 

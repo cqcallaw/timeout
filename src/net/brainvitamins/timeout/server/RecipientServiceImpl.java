@@ -73,7 +73,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	private void addRecipientCore(@NotNull Recipient recipient, String userId)
 	{
 		RecipientOperations.addRecipient(recipient, userId);
-		RecipientOperations.pushToClient(getThreadLocalRequest().getSession()
+		PushOperations.pushToListener(getThreadLocalRequest().getSession()
 				.getId(), new CreateOperation<Recipient>(recipient));
 	}
 
@@ -109,7 +109,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	{
 		validateRecipient(recipient);
 		RecipientOperations.updateRecipient(recipient);
-		RecipientOperations.pushToClient(getThreadLocalRequest().getSession()
+		PushOperations.pushToListener(getThreadLocalRequest().getSession()
 				.getId(), new UpdateOperation<Recipient>(recipient));
 	}
 
@@ -146,7 +146,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 			pm.close();
 		}
 
-		RecipientOperations.pushToClient(getThreadLocalRequest().getSession()
+		PushOperations.pushToListener(getThreadLocalRequest().getSession()
 				.getId(), new DeleteOperation<Recipient>(recipient));
 	}
 

@@ -5,11 +5,6 @@ import java.util.Set;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Transaction;
 
-import com.google.appengine.api.channel.ChannelMessage;
-import com.google.appengine.api.channel.ChannelService;
-import com.google.appengine.api.channel.ChannelServiceFactory;
-
-import net.brainvitamins.timeout.shared.operations.DataOperation;
 import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
 
@@ -89,20 +84,6 @@ public class RecipientOperations
 		{
 			pm.close();
 		}
-	}
-
-	public static <T> void pushToClient(String sessionId,
-			DataOperation<Recipient> operation)
-	{
-		ChannelService channelService = ChannelServiceFactory
-				.getChannelService();
-
-		String channelKey = sessionId + ":recipient";
-
-		channelService.sendMessage(new ChannelMessage(channelKey, operation
-				.toString()));
-
-		System.out.println(operation.toString());
 	}
 
 	/**

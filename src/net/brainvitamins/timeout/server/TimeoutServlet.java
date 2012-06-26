@@ -11,9 +11,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
 import net.brainvitamins.timeout.shared.Timeout;
+import net.brainvitamins.timeout.shared.operations.CreateOperation;
 
 /**
  * Notify the server of a timeout (this should only be done by an enqueued Task)
@@ -95,7 +97,8 @@ public class TimeoutServlet extends HttpServlet
 				// TODO: handle non-email recipients
 			}
 
-			ActivityOperations.pushToClient(sourceSessionId, activity);
+			PushOperations.pushToListener(sourceSessionId,
+					new CreateOperation<Activity>(activity));
 		}
 		catch (ParseException e)
 		{
