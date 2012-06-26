@@ -12,7 +12,6 @@ public class ActivityParser extends DataOperationParser<Activity>
 {
 	// there's no reason for more than one instance to exist
 	public static final ActivityParser Instance = new ActivityParser();
-
 	protected ActivityParser()
 	{
 	}

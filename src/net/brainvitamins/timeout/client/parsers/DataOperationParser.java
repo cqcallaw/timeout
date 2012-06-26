@@ -9,14 +9,17 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 
-//These parsing behaviors are defined on the client side instead of in type constructors
-//because GWT uses a different (incompatible) DateFormat class on the client
-//side
-
-//JSON is not used because the author is not aware of a simple way to map
-//abstract JSON representations to concrete Java types, (e.g. given a JSON
-//representation of an Activity, determine that it represents a Checkin)
-
+/**
+ * Client-side parsing of shared data types
+ * 
+ * These parsing behaviors are defined as client-side behaviors instead of class
+ * constructors because GWT uses a different (incompatible) DateFormat class on
+ * the client side
+ * 
+ * JSON is not used because the author is not aware of a simple way to map
+ * abstract JSON representations to concrete Java types, (e.g. given a JSON
+ * representation of an Activity, determine that it represents a Checkin)
+ */
 public abstract class DataOperationParser<T>
 {
 	public static DateTimeFormat dateFormat = DateTimeFormat
@@ -32,7 +35,8 @@ public abstract class DataOperationParser<T>
 		MatchResult result = dataOperationRegExp.exec(asString);
 		if (result == null)
 			throw new IllegalArgumentException(
-					"Unrecognized data operation type.");
+					"Unrecognized data operation type in argument \""
+							+ asString + "\"");
 
 		String itemString = result.getGroup(2);
 
