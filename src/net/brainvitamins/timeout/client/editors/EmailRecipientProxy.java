@@ -35,7 +35,8 @@ public class EmailRecipientProxy
 
 	public void setAddress(String address)
 	{
-		if (!(address == null)) result = result.withAddress(address);
+		if (!(address == null || address.equals(result.getAddress())))
+			result = result.withAddress(address);
 	}
 
 	public EmailRecipientProxy()

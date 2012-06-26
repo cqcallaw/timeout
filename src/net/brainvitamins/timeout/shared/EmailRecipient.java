@@ -90,7 +90,7 @@ public class EmailRecipient extends Recipient implements Serializable
 
 	public EmailRecipient withAddress(String address)
 	{
-		//changing the address automatically sets isVerified to false
+		// changing the address automatically sets isVerified to false
 		return new EmailRecipient(getKey(), getName(), address, false);
 	}
 
