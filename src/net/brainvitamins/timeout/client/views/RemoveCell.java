@@ -21,7 +21,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * A custom {@link Cell} to show
+ * A custom {@link Cell}, designed to allow the user to remove a recipient
  */
 public class RemoveCell extends AbstractCell<Recipient>
 {
@@ -86,24 +86,28 @@ public class RemoveCell extends AbstractCell<Recipient>
 					Element.as(eventTarget)))
 			{
 				logger.log(Level.INFO, "RemoveCell clicked.");
-				recipientService.removeRecipient(value,
-						new AsyncCallback<Void>()
-						{
 
-							@Override
-							public void onSuccess(Void result)
+				if (Window.confirm("Remove recipient " + value.getName() + "?"))
+				{
+					recipientService.removeRecipient(value,
+							new AsyncCallback<Void>()
 							{
-								logger.log(Level.INFO, "Recipient removed.");
-							}
 
-							@Override
-							public void onFailure(Throwable caught)
-							{
-								// TODO Auto-generated method stub
-								Window.alert("Error removing recipient: "
-										+ caught.getMessage());
-							}
-						});
+								@Override
+								public void onSuccess(Void result)
+								{
+									logger.log(Level.INFO, "Recipient removed.");
+								}
+
+								@Override
+								public void onFailure(Throwable caught)
+								{
+									// TODO Auto-generated method stub
+									Window.alert("Error removing recipient: "
+											+ caught.getMessage());
+								}
+							});
+				}
 			}
 		}
 	}
