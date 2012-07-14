@@ -1,14 +1,14 @@
 package net.brainvitamins.timeout.client.editors;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.services.RecipientService;
 import net.brainvitamins.timeout.shared.services.RecipientServiceAsync;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.editor.client.SimpleBeanEditorDriver;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.KeyPressEvent;
-import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -21,6 +21,11 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class EmailRecipientEditorDialog extends DialogBox
 {
+	public enum Mode
+	{
+		ADD, EDIT
+	}
+
 	interface EmailRecipientViewUiBinder extends
 			UiBinder<Widget, EmailRecipientEditorDialog>
 	{
@@ -29,19 +34,16 @@ public class EmailRecipientEditorDialog extends DialogBox
 	private static EmailRecipientViewUiBinder uiBinder = GWT
 			.create(EmailRecipientViewUiBinder.class);
 
-	interface Driver extends
-			SimpleBeanEditorDriver<EmailRecipientProxy, EmailRecipientEditor>
-	{
-	}
-
-	private Driver driver;
-
 	private RecipientServiceAsync recipientService = GWT
 			.create(RecipientService.class);
 
 	private static Image img = new Image("loading.gif");
 
 	private EmailRecipient original;
+
+	private final Mode mode;
+
+	private static Logger logger = Logger.getLogger("EditorDialog");
 
 	@UiField(provided = true)
 	EmailRecipientEditor editor;
@@ -52,56 +54,31 @@ public class EmailRecipientEditorDialog extends DialogBox
 	@UiField
 	Label errorLabel;
 
-	public EmailRecipientEditorDialog()
+	public EmailRecipientEditorDialog(EmailRecipient recipient, Mode mode)
 	{
-		editor = new EmailRecipientEditor();
-		driver = GWT.create(Driver.class);
-		driver.initialize(editor);
+		editor = new EmailRecipientEditor(recipient);
 
-		KeyPressHandler errorReset = new KeyPressHandler()
-		{
-			@Override
-			public void onKeyPress(KeyPressEvent event)
-			{
-				errorLabel.setVisible(false);
-			}
-		};
+		// it really sucks that we have to do this here...
+		editor.nameEditor.setText(recipient.getName());
+		editor.addressEditor.setText(recipient.getAddress());
+		editor.nameEditor.setFocus(true);
 
-		editor.nameEditor.addKeyPressHandler(errorReset);
-
-		editor.addressEditor.addKeyPressHandler(errorReset);
+		this.mode = mode;
 
 		setWidget(uiBinder.createAndBindUi(this));
-	}
-
-	public void add()
-	{
-		driver.edit(new EmailRecipientProxy());
-		this.center();
-	}
-
-	public void edit(EmailRecipient recipient)
-	{
-		original = recipient;
-		driver.edit(new EmailRecipientProxy(recipient));
-		this.center();
 	}
 
 	@UiHandler("okButton")
 	void save(ClickEvent event)
 	{
-		errorLabel.setText("");
-		lockInput();
-		EmailRecipient result = driver.flush().getResult();
-
-		if (result != null)
+		if (!editor.hasErrors())
 		{
-			// TODO: client-side input validation (empty fields, invalid e-mail
-			// addresses, etc)
+			lockInput();
 
-			// the original is magically mysteriously initialized by the time we
-			// reach this point. Odd.
-			if (original.equals(new EmailRecipient()))
+			EmailRecipient result = editor.getCurrentValue();
+
+			logger.log(Level.INFO, "Edit result: " + result);
+			if (mode == Mode.ADD)
 			{
 				recipientService.addRecipient(result, serverHandler);
 			}
@@ -109,14 +86,6 @@ public class EmailRecipientEditorDialog extends DialogBox
 			{
 				recipientService.updateRecipient(result, serverHandler);
 			}
-			else
-			{
-				unlockInput();
-			}
-		}
-		else
-		{
-			unlockInput();
 		}
 	}
 
@@ -140,12 +109,9 @@ public class EmailRecipientEditorDialog extends DialogBox
 		public void onFailure(Throwable caught)
 		{
 			if (caught instanceof IllegalArgumentException)
-				errorLabel.setText(caught.getMessage());
+				showError(caught.getMessage());
 			else
-				errorLabel
-						.setText("Server error while adding recipient.\nPlease contact the server admin.");
-
-			errorLabel.setVisible(true);
+				showError("Server error while adding recipient.\nPlease contact the server admin.");
 
 			unlockInput();
 		}
@@ -167,5 +133,11 @@ public class EmailRecipientEditorDialog extends DialogBox
 
 		okButton.setText("OK");
 		okButton.getElement().removeChild(img.getElement());
+	}
+
+	private void showError(String error)
+	{
+		errorLabel.setText(error);
+		errorLabel.setVisible(true);
 	}
 }

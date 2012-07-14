@@ -1,6 +1,10 @@
 package net.brainvitamins.timeout.client.views;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.brainvitamins.timeout.client.editors.EmailRecipientEditorDialog;
+import net.brainvitamins.timeout.client.editors.EmailRecipientEditorDialog.Mode;
 import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
 
@@ -22,6 +26,8 @@ import com.google.gwt.user.client.ui.Widget;
 public class RecipientListView extends Composite implements
 		CellTableView<Recipient>
 {
+
+	private static Logger logger = Logger.getLogger("RecipientListView");
 
 	private static ActivityUiBinder uiBinder = GWT
 			.create(ActivityUiBinder.class);
@@ -127,9 +133,12 @@ public class RecipientListView extends Composite implements
 	@UiHandler("addButton")
 	void handleClick(ClickEvent e)
 	{
+		logger.log(Level.INFO, "Add button clicked.");
 		// ideally this would be generalized to handle non-email recipients
-		EmailRecipient recipient = new EmailRecipient();
-		EmailRecipientEditorDialog editDialog = new EmailRecipientEditorDialog();
-		editDialog.edit(recipient);
+		// EmailRecipient recipient = new EmailRecipient();
+		EmailRecipientEditorDialog editDialog = new EmailRecipientEditorDialog(
+				new EmailRecipient(), Mode.ADD);
+		editDialog.center();
+		// editDialog.add();
 	}
 }

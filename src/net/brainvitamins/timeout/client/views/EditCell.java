@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.brainvitamins.timeout.client.editors.EmailRecipientEditorDialog;
+import net.brainvitamins.timeout.client.editors.EmailRecipientEditorDialog.Mode;
 import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
 
@@ -84,8 +85,9 @@ public class EditCell extends AbstractCell<Recipient>
 				// TODO: refactor to support other Recipient types
 				if (value instanceof EmailRecipient)
 				{
-					EmailRecipientEditorDialog editDialog = new EmailRecipientEditorDialog();
-					editDialog.edit((EmailRecipient) value);
+					EmailRecipientEditorDialog editDialog = new EmailRecipientEditorDialog(
+							(EmailRecipient) value, Mode.EDIT);
+					editDialog.center();
 				}
 			}
 		}

@@ -12,6 +12,12 @@
 				</td>
 			</tr>
 			<tr>
+				<td colspan="2">
+					<g:Label ui:field="nameErrorLabel" width="215px" styleName="error-Label"
+						text="" visible="false" />
+				</td>
+			</tr>
+			<tr>
 				<td>
 					<g:Label text="Address:" />
 				</td>
@@ -19,6 +25,12 @@
 					<g:TextBox ui:field="addressEditor" />
 				</td>
 			</tr>
+			<tr>
+				<td colspan="2">
+					<g:Label ui:field="addressErrorLabel" width="215px" styleName="error-Label"
+						text="" visible="false" />
+				</td>
+			</tr>
 		</table>
 	</g:HTMLPanel>
-</ui:UiBinder> 
+</ui:UiBinder>

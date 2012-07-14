@@ -40,13 +40,17 @@ public abstract class Recipient implements Serializable
 
 	public Recipient()
 	{
-		this("");
+		this("defaultName");
 	}
 
 	public Recipient(@NotNull String name)
 	{
 		if (name == null)
 			throw new IllegalArgumentException("Name can't be null");
+
+		if (name == "")
+			throw new IllegalArgumentException(
+					"Name can't be an emptry string.");
 
 		this.name = name;
 	}

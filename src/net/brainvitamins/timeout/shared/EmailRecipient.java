@@ -34,7 +34,7 @@ public class EmailRecipient extends Recipient implements Serializable
 
 	public EmailRecipient()
 	{
-		this("", "");
+		this("defaultName", "defaultAddress");
 	}
 
 	public EmailRecipient(@NotNull String name, @NotNull String address)
@@ -56,6 +56,10 @@ public class EmailRecipient extends Recipient implements Serializable
 		if (address == null)
 			throw new IllegalArgumentException("Address can't be null");
 
+		if (address == "")
+			throw new IllegalArgumentException(
+					"Address can't be an empty string.");
+
 		this.address = address;
 		this.verified = false;
 	}
@@ -71,6 +75,10 @@ public class EmailRecipient extends Recipient implements Serializable
 
 		if (address == null)
 			throw new IllegalArgumentException("Address can't be null");
+
+		if (address == "")
+			throw new IllegalArgumentException(
+					"Address can't be an empty string.");
 
 		this.address = address;
 		this.verified = verified;
