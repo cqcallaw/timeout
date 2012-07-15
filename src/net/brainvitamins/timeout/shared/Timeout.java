@@ -19,7 +19,7 @@ public class Timeout extends Activity implements Serializable
 		return timeout;
 	}
 
-	@Persistent
+	@Persistent(defaultFetchGroup = "true")
 	private Date startTime;
 
 	public Date getStartTime()
