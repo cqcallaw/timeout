@@ -6,13 +6,13 @@
 		<c:CellTable ui:field="activityView" />
 
 		<div id="checkin">
-			<g:Button ui:field="checkinButton" text="Checkin" />
+			<g:Button ui:field="checkinButton" text="Checkin" tabIndex="1" focus="true" />
 			for
-			<input type="text" name="timeout" ui:field="timeoutField"
+			<g:TextBox name="timeout" ui:field="timeoutField" tabIndex="2"
 				value="1000" />
 			milliseconds.
 
-			<g:Button ui:field="cancelCheckinButton" text="Cancel Checkin" />
+			<g:Button ui:field="cancelCheckinButton" text="Cancel Checkin" tabIndex="3"/>
 		</div>
 	</g:HTMLPanel>
 </ui:UiBinder> 

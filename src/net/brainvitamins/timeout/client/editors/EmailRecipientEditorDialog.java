@@ -71,8 +71,15 @@ public class EmailRecipientEditorDialog extends DialogBox
 	@UiHandler("okButton")
 	void save(ClickEvent event)
 	{
-		if (!editor.hasErrors())
+		if (editor.hasErrors())
 		{
+			showError("Please correct form errors.");
+		}
+		else
+		{
+			errorLabel.setText("");
+			errorLabel.setVisible(false);
+
 			lockInput();
 
 			EmailRecipient result = editor.getCurrentValue();

@@ -5,7 +5,7 @@
 	<g:VerticalPanel>
 		<c:CellTable ui:field="recipientView" width="100%" />
 		<g:Cell horizontalAlignment="ALIGN_RIGHT">
-			<g:Button ui:field="addButton" text="Add" styleName="recipient-Button" />
+			<g:Button ui:field="addButton" text="Add" styleName="recipient-Button" tabIndex="4"/>
 		</g:Cell>
 	</g:VerticalPanel>
 

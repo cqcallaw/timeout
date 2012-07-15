@@ -27,8 +27,8 @@
 			</tr>
 			<tr>
 				<td colspan="2">
-					<g:Label ui:field="addressErrorLabel" width="215px" styleName="error-Label"
-						text="" visible="false" />
+					<g:Label ui:field="addressErrorLabel" width="215px"
+						styleName="error-Label" text="" visible="false" />
 				</td>
 			</tr>
 		</table>

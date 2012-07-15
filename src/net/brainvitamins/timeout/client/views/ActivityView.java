@@ -23,6 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
 public class ActivityView extends Composite implements CellTableView<Activity>
@@ -55,11 +56,21 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 	}
 
 	@UiField
-	InputElement timeoutField;
+	TextBox timeoutField;
 
 	@UiField
 	Button checkinButton;
 
+	public Button getCheckinButton()
+	{
+		return checkinButton;
+	}
+
+	public TextBox getTimeoutField()
+	{
+		return timeoutField;
+	}
+	
 	public void setTimeout(long value)
 	{
 		timeoutField.setValue(String.valueOf(value));
