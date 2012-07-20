@@ -1,12 +1,15 @@
 package net.brainvitamins.timeout.server;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import javax.jdo.PersistenceManager;
+import javax.jdo.Transaction;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
@@ -58,11 +61,18 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 
 		HttpServletRequest request = this.getThreadLocalRequest();
 
-		ConfirmationRequestOperations.sendConfirmationRequest(recipient,
-				currentUser, "http://" + request.getServerName() + ":"
-						+ request.getServerPort()
-						+ "/timeout/confirmation/email");
-
+		try
+		{
+			ConfirmationRequestOperations.sendConfirmationRequest(recipient,
+					currentUser, new URL("http://" + request.getServerName()
+							+ ":" + request.getServerPort()
+							+ "/timeout/confirmation/email"));
+		}
+		catch (MalformedURLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -107,10 +117,34 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	public void updateRecipient(@NotNull EmailRecipient recipient)
 			throws IllegalArgumentException
 	{
+		User currentUser = UserOperations.getCurrentUser();
 		validateRecipient(recipient);
-		RecipientOperations.updateRecipient(recipient);
+
+		HttpServletRequest request = this.getThreadLocalRequest();
+
+		try
+		{
+			RecipientOperations.updateRecipient(
+					recipient,
+					currentUser,
+					new URL("http://" + request.getServerName() + ":"
+							+ request.getServerPort()
+							+ "/timeout/confirmation/email"));
+		}
+		catch (MalformedURLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		PushOperations.pushToListener(getThreadLocalRequest().getSession()
 				.getId(), new UpdateOperation<Recipient>(recipient));
+
 	}
 
 	@Override

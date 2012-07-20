@@ -1,5 +1,7 @@
 package net.brainvitamins.timeout.server;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.Set;
 
 import javax.jdo.PersistenceManager;
@@ -47,8 +49,10 @@ public class RecipientOperations
 
 	/**
 	 * @param recipient
+	 * @throws UnsupportedEncodingException if 
 	 */
-	public static void updateRecipient(EmailRecipient updatedRecipient)
+	public static void updateRecipient(EmailRecipient updatedRecipient,
+			User user, URL url) throws UnsupportedEncodingException
 	{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
@@ -78,6 +82,13 @@ public class RecipientOperations
 							+ updatedRecipient + " failed.");
 					tx.rollback();
 				}
+			}
+
+			if (!currentRecipient.getAddress().equals(
+					updatedRecipient.getAddress()))
+			{
+				ConfirmationRequestOperations.sendConfirmationRequest(
+						updatedRecipient, user, url);
 			}
 		}
 		finally

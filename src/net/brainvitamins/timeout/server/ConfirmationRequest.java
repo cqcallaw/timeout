@@ -2,11 +2,14 @@ package net.brainvitamins.timeout.server;
 
 import java.util.UUID;
 
+import javax.jdo.annotations.Discriminator;
+import javax.jdo.annotations.DiscriminatorStrategy;
+import javax.jdo.annotations.Extension;
+import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import net.brainvitamins.timeout.shared.EmailRecipient;
 import net.brainvitamins.timeout.shared.Recipient;
 
 /**
@@ -18,9 +21,11 @@ import net.brainvitamins.timeout.shared.Recipient;
  * @param <T>
  */
 @PersistenceCapable
-public class ConfirmationRequest<T extends Recipient>
+@Discriminator(strategy = DiscriminatorStrategy.CLASS_NAME)
+public abstract class ConfirmationRequest<T extends Recipient>
 {
 	@PrimaryKey
+	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	private String id;
 
 	public String getId()
@@ -42,6 +47,7 @@ public class ConfirmationRequest<T extends Recipient>
 	 * @see http://stackoverflow.com/q/11026061/577298
 	 * @param user
 	 * @param recipient
+	 * @param address
 	 */
 	public ConfirmationRequest(T recipient)
 	{
@@ -68,15 +74,5 @@ public class ConfirmationRequest<T extends Recipient>
 	public String toString()
 	{
 		return "ConfirmationRequest [recipient=" + recipientKey + "]";
-	}
-
-	// this elaborate hack brought to you courtesy of type erasure!
-	// see http://stackoverflow.com/q/11060491/577298
-	@SuppressWarnings("unchecked")
-	public static final Class<? extends ConfirmationRequest<EmailRecipient>> emailConfirmationType = (Class<? extends ConfirmationRequest<EmailRecipient>>) new ConfirmationRequest<EmailRecipient>()
-			.getClass();
-
-	protected ConfirmationRequest()
-	{
 	}
 }

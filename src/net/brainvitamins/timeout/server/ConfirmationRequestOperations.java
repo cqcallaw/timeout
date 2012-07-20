@@ -1,6 +1,7 @@
 package net.brainvitamins.timeout.server;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 
 import javax.jdo.PersistenceManager;
 import javax.mail.MessagingException;
@@ -21,7 +22,8 @@ public class ConfirmationRequestOperations
 	 */
 	public static void sendConfirmationRequest(
 			@NotNull EmailRecipient recipient, @NotNull User user,
-			@NotNull String confirmationURLBase) throws UnsupportedEncodingException
+			@NotNull URL confirmationURLBase)
+			throws UnsupportedEncodingException
 	{
 		// sanity checks
 		if (recipient == null)
@@ -78,7 +80,7 @@ public class ConfirmationRequestOperations
 		if (recipient.getKey() == null)
 			throw new IllegalArgumentException("recipient key must be null.");
 
-		ConfirmationRequest<EmailRecipient> confirmationRequest = new ConfirmationRequest<EmailRecipient>(
+		EmailConfirmationRequest confirmationRequest = new EmailConfirmationRequest(
 				recipient);
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();

@@ -32,23 +32,45 @@ public class EmailRecipientConfirmationServlet extends HttpServlet
 		pm = PMF.get().getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 
-		ConfirmationRequest<EmailRecipient> confirmationRequest = null;
+		EmailConfirmationRequest confirmationRequest = null;
 		EmailRecipient recipient = null;
 		try
 		{
 			tx.begin();
 			confirmationRequest = pm.getObjectById(
-					ConfirmationRequest.emailConfirmationType, confirmationId);
+					EmailConfirmationRequest.class, confirmationId);
 			recipient = pm.getObjectById(EmailRecipient.class,
 					confirmationRequest.getRecipientKey());
 
-			// overwrite old value: the db key is the same;
-			pm.makePersistent(recipient.withVerified(true));
-			pm.deletePersistent(confirmationRequest);
-			tx.commit();
+			if (recipient != null)
+			{
+				if (recipient.getAddress().equals(
+						confirmationRequest.getUnverifiedAddress()))
+				{
+					// overwrite old value: the db key is the same;
+					pm.makePersistent(recipient.withVerified(true));
+					pm.deletePersistent(confirmationRequest);
+					tx.commit();
 
-			out.write("Thanks! Address confirmed.");
-			// TODO: figure out a way to push the confirmation to the client
+					out.write("Thanks! Address confirmed.");
+					// TODO: figure out a way to push the confirmation to the
+					// client
+				}
+				else
+				{
+					pm.deletePersistent(confirmationRequest);
+					tx.commit();
+
+					out.write("Unverifiable request: the recipient's address has changed since the confirmation request was issued.\n"
+							+ " Please contact the user directly to get a new confirmation request.");
+				}
+			}
+			else
+			{
+				// recipient is no longer present in the system
+				out.write("Recipient not found. Please contact the user directly to get a new confirmation request.");
+
+			}
 		}
 		catch (JDOObjectNotFoundException e)
 		{
@@ -60,7 +82,8 @@ public class EmailRecipientConfirmationServlet extends HttpServlet
 			{
 				tx.rollback();
 				System.out.println("Failed to process confirmation request "
-						+ confirmationRequest + " for recipient " + recipient);
+						+ confirmationRequest + " for recipient " + recipient
+						+ ". Please contact the administrator.");
 			}
 			pm.close();
 		}

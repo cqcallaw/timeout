@@ -12,6 +12,17 @@ import javax.mail.internet.MimeMessage;
 
 public class MailOperations
 {
+	/**
+	 * 
+	 * @param subject
+	 * @param body
+	 * @param name
+	 * @param address
+	 * @param fromName
+	 * @param fromAddress
+	 * @throws UnsupportedEncodingException if the fromName or fromAddress parameters are invalid
+	 * @throws MessagingException
+	 */
 	public static void sendMessage(String subject, String body, String name,
 			String address, String fromName, String fromAddress)
 			throws UnsupportedEncodingException, MessagingException
