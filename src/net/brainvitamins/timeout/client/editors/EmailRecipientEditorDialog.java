@@ -65,6 +65,8 @@ public class EmailRecipientEditorDialog extends DialogBox
 
 		this.mode = mode;
 
+		if (mode == Mode.EDIT) this.original = recipient;
+
 		setWidget(uiBinder.createAndBindUi(this));
 	}
 
@@ -116,7 +118,7 @@ public class EmailRecipientEditorDialog extends DialogBox
 		public void onFailure(Throwable caught)
 		{
 			if (caught instanceof IllegalArgumentException)
-				showError(caught.getMessage());
+				showError("Message from server: " + caught.getMessage());
 			else
 				showError("Server error while adding recipient.\nPlease contact the server admin.");
 
