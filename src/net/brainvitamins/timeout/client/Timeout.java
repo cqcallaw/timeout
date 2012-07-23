@@ -280,9 +280,12 @@ public class Timeout implements EntryPoint
 			@Override
 			public void onFailure(Throwable caught)
 			{
-				Window.alert("Error setting up channel: " + caught.getMessage());
+				Window.alert("Error setting up channel: " + caught.getMessage() + " Please report this message to the administrator.");
 			}
 		});
+		
+//		homeView.getActivityView().getTimeoutField().selectAll();
+		homeView.getActivityView().getCheckinButton().setFocus(true);
 
 		logger.log(Level.INFO, "App loaded.");
 	}

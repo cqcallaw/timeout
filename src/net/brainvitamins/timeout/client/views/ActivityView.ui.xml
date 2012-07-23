@@ -13,6 +13,7 @@
 			milliseconds.
 
 			<g:Button ui:field="cancelCheckinButton" text="Cancel Checkin" tabIndex="3"/>
+			<g:Label ui:field="errorLabel" styleName="error-Label" visible="false" />
 		</div>
 	</g:HTMLPanel>
 </ui:UiBinder> 

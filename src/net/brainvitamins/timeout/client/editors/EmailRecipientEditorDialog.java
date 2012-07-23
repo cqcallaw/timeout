@@ -37,7 +37,7 @@ public class EmailRecipientEditorDialog extends DialogBox
 	private RecipientServiceAsync recipientService = GWT
 			.create(RecipientService.class);
 
-	private static Image img = new Image("loading.gif");
+	private static Image loadingImage = new Image("loading.gif");
 
 	private EmailRecipient original;
 
@@ -132,7 +132,7 @@ public class EmailRecipientEditorDialog extends DialogBox
 		okButton.setEnabled(false);
 
 		okButton.setText("");
-		okButton.getElement().appendChild(img.getElement());
+		okButton.getElement().appendChild(loadingImage.getElement());
 	}
 
 	private void unlockInput()
@@ -141,7 +141,7 @@ public class EmailRecipientEditorDialog extends DialogBox
 		okButton.setEnabled(true);
 
 		okButton.setText("OK");
-		okButton.getElement().removeChild(img.getElement());
+		okButton.getElement().removeChild(loadingImage.getElement());
 	}
 
 	private void showError(String error)

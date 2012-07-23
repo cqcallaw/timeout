@@ -102,9 +102,6 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 
 		String sessionId = getThreadLocalRequest().getSession().getId();
 
-		// cancel active timeout
-		cancelCheckin(userId);
-
 		// TODO: figure out a way to avoid hardcoding the module path
 		// hardcode the module path
 		TaskOptions taskOptions = TaskOptions.Builder
@@ -113,6 +110,9 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 				.param("sourceSessionId", sessionId)
 				.param("timeout", Long.toString(timeout)).taskName(userId);
 
+		// cancel active timeout
+		cancelCheckin(userId);
+		//TODO: potential race condition here...
 		queue.add(taskOptions);
 
 		ActivityOperations.log(userId, checkin);
