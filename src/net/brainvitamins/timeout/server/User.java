@@ -72,7 +72,7 @@ public class User
 	public User(String userId, String nickname)
 	{
 		super();
-		this.id = UserOperations.hashUserId(userId);
+		this.id = UserOperations.getCurrentUserId();
 		this.nickname = nickname;
 		activityLog = new ArrayList<Activity>();
 		recipients = new HashSet<Recipient>();

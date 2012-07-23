@@ -9,7 +9,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.jdo.PersistenceManager;
-import javax.jdo.Transaction;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
@@ -159,7 +158,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		try
 		{
 			User currentUser = pm.getObjectById(User.class,
-					UserOperations.getCurrentUserHashedId());
+					UserOperations.getCurrentUserId());
 
 			if (currentUser == null)
 			{
