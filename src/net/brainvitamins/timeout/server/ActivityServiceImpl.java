@@ -22,7 +22,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class ActivityServiceImpl extends RemoteServiceServlet implements
 		ActivityService
 {
-	private Queue queue = QueueFactory.getDefaultQueue();
+	private Queue queue = QueueFactory.getQueue("activity");
 
 	private static final long serialVersionUID = 3820757361541824185L;
 
@@ -48,6 +48,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 		}
 
 		// TODO: this may be unnecessary and inefficient.
+		// descending sort
 		Collections.sort(currentUser.getActivityLog(),
 				new Comparator<Activity>()
 				{
@@ -91,7 +92,7 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String time = dateFormat.format(timestamp);
 		// String userId = Utilities.getCurrentUserHashedId();
-		User user = UserOperations.getCurrentUser();
+		User user = UserOperations.getCurrentUserWithActivity();
 
 		if (user == null)
 		{
@@ -108,17 +109,36 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 				.withUrl("/timeout/timeout").countdownMillis(timeout)
 				.param("userId", userId).param("startTime", time)
 				.param("sourceSessionId", sessionId)
-				.param("timeout", Long.toString(timeout)).taskName(userId);
+				.param("timeout", Long.toString(timeout))
+				.taskName(getTaskId(user, checkin));
 
-		// cancel active timeout
-		cancelCheckin(userId);
-		//TODO: potential race condition here...
+		cancelCheckin(user);
+
+		// TODO: there's a race condition here...
 		queue.add(taskOptions);
 
 		ActivityOperations.log(userId, checkin);
 
 		PushOperations.pushToListener(sessionId, new CreateOperation<Activity>(
 				checkin));
+	}
+
+	/**
+	 * @param user
+	 */
+	private void cancelCheckin(User user)
+	{
+		List<Activity> activityLog = user.getActivityLog();
+
+		if (!activityLog.isEmpty())
+		{
+			Activity lastActivity = activityLog.get(0);
+			if (lastActivity instanceof Checkin)
+			{
+				queue.deleteTask(getTaskId(user, lastActivity));			
+			}
+			//urgh no feedback if the consumer's trying to cancel when there's nothing to cancel...
+		}
 	}
 
 	@Override
@@ -129,39 +149,18 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 		if (user == null)
 			throw new IllegalStateException("Cannot obtain current user.");
 
-		String userId = user.getId();
+		cancelCheckin(user);
+		
+		Cancellation cancellation = new Cancellation();
+		ActivityOperations.log(user.getId(), cancellation);
 
-		cancelCheckin(userId);
-		List<Activity> activityLog = user.getActivityLog();
-
-		if (activityLog.size() > 0)
-		{
-			Activity lastActivity = activityLog.get(activityLog.size() - 1);
-			if (lastActivity instanceof Checkin)
-			{
-				Cancellation cancellation = new Cancellation();
-				ActivityOperations.log(userId, cancellation);
-
-				PushOperations.pushToListener(getThreadLocalRequest()
-						.getSession().getId(), new CreateOperation<Activity>(
-						cancellation));
-			}
-			else
-			{
-				throw new IllegalStateException(
-						"Cannot cancel checkin if no checkin is active.");
-			}
-		}
-		else
-		{
-			throw new IllegalStateException(
-					"Cannot cancel checkin on an empty activity log.");
-		}
+		PushOperations.pushToListener(getThreadLocalRequest()
+				.getSession().getId(), new CreateOperation<Activity>(
+				cancellation));		
 	}
 
-	private void cancelCheckin(String userId)
+	private String getTaskId(User user, Activity activity)
 	{
-		// TODO: verify the task was actually deleted.
-		queue.deleteTask(userId);
+		return user.getId() + activity.getTimestamp().hashCode();
 	}
 }
