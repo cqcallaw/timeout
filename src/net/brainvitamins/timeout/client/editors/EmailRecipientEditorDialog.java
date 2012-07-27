@@ -141,7 +141,6 @@ public class EmailRecipientEditorDialog extends DialogBox
 		okButton.setEnabled(true);
 
 		okButton.setText("OK");
-		okButton.getElement().removeChild(loadingImage.getElement());
 	}
 
 	private void showError(String error)

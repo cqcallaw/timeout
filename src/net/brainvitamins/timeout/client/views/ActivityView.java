@@ -1,5 +1,8 @@
 package net.brainvitamins.timeout.client.views;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.services.ActivityService;
@@ -36,6 +39,8 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 	interface ActivityUiBinder extends UiBinder<Widget, ActivityView>
 	{
 	}
+
+	private static Logger logger = Logger.getLogger("ActivityView");
 
 	@UiField(provided = true)
 	final CellTable<Activity> activityView;
@@ -201,6 +206,7 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 	
 	private void lockInput(Button source)
 	{
+		logger.log(Level.FINE, "Locking input...");
 		if (lockButton != null)
 			throw new IllegalStateException("Attempted to lock an activity view that is already locked.");
 		
@@ -211,17 +217,22 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 
 		source.setText("");
 		source.getElement().appendChild(loadingImage.getElement());
+		logger.log(Level.FINE, "Input locked.");
 	}
 
 	private void unlockInput()
 	{
+		logger.log(Level.FINE, "Unlocking input...");
 		if (lockButton == null)
 			throw new IllegalStateException("Attempted to unlock an activity view that is not locked.");
 		
 		lockButton.setEnabled(true);
 
 		lockButton.setText(lockButtonText);
-		lockButton.getElement().removeChild(loadingImage.getElement());
+		
+		lockButton = null;
+		lockButtonText = "";
+		logger.log(Level.FINE, "Input unlocked.");
 	}
 
 	private void showError(String error)
