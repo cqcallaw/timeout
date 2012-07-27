@@ -52,9 +52,10 @@ public class ConfirmationRequestOperations
 			MailOperations
 					.sendMessage(
 							"Recipient confirmation",
-							"User has added you as a recipient of timeout notifications",
-							recipient.getName(), recipient.getAddress(),
-							"The Admin", "admin@---appspotmail.com");
+							"User "+ user.getNickname() + " has added you as a recipient of timeout notifications.\n To enable notification from the user, please click on the following link: "
+									+ verificationURL, recipient.getName(),
+							recipient.getAddress(), "Vigilance Control Admin",
+							"admin@vigilance-control.appspotmail.com");
 		}
 		catch (MessagingException e)
 		{

@@ -113,12 +113,12 @@ public class TimeoutServlet extends HttpServlet
 	{
 		MailOperations
 				.sendMessage(
-						"Timeout notification",
-						"User " + user.getNickname() + "checked in at "
+						"Vigilance Control timeout notification",
+						"User " + user.getNickname() + " checked in at "
 								+ timeout.getStartTime()
 								+ ". This checkin timed out at "
 								+ timeout.getTimestamp(), recipient.getName(),
-						recipient.getAddress(), "The Admin",
-						"admin@---appspotmail.com");
+						recipient.getAddress(), "Vigilance Control",
+						"admin@vigilance-control.appspotmail.com");
 	}
 }
