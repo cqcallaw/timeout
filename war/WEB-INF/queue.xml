@@ -1,0 +1,6 @@
+<queue-entries>
+  <queue>
+    <name>activity</name>
+     <rate>5/s</rate>
+  </queue>
+</queue-entries>
