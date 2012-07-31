@@ -6,7 +6,7 @@ import java.util.Date;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
-@PersistenceCapable
+@PersistenceCapable(detachable = "true")
 public class Timeout extends Activity implements Serializable
 {
 	private static final long serialVersionUID = 5435541820544915944L;

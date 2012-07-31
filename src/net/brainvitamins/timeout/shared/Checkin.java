@@ -6,7 +6,7 @@ import java.util.Date;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 
-@PersistenceCapable
+@PersistenceCapable(detachable = "true")
 public class Checkin extends Activity implements Serializable
 {
 	private static final long serialVersionUID = -3016832144903168986L;

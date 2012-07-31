@@ -12,7 +12,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 //TODO: investigate why this caused problems when it wasn't serializable
-@PersistenceCapable
+@PersistenceCapable(detachable = "true")
 @Discriminator(strategy = DiscriminatorStrategy.CLASS_NAME)
 public abstract class Activity implements Serializable
 {
@@ -26,7 +26,7 @@ public abstract class Activity implements Serializable
 
 	@Persistent(defaultFetchGroup = "true")
 	private Date timestamp;
-
+ 
 	public Date getTimestamp()
 	{
 		return timestamp;
