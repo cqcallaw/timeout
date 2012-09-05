@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.brainvitamins.timeout.server.PMF;
 import net.brainvitamins.timeout.shared.EmailRecipient;
 
 public class EmailRecipientConfirmationServlet extends HttpServlet
@@ -81,7 +80,7 @@ public class EmailRecipientConfirmationServlet extends HttpServlet
 			if (tx.isActive())
 			{
 				tx.rollback();
-				System.out.println("Failed to process confirmation request "
+				out.write("Failed to process confirmation request "
 						+ confirmationRequest + " for recipient " + recipient
 						+ ". Please contact the administrator.");
 			}

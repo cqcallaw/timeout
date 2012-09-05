@@ -2,6 +2,8 @@ package net.brainvitamins.timeout.server;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -12,6 +14,9 @@ import javax.mail.internet.MimeMessage;
 
 public class MailOperations
 {
+	private static final Logger logger = Logger.getLogger(MailOperations.class
+			.getName());
+
 	/**
 	 * 
 	 * @param subject
@@ -20,7 +25,8 @@ public class MailOperations
 	 * @param address
 	 * @param fromName
 	 * @param fromAddress
-	 * @throws UnsupportedEncodingException if the fromName or fromAddress parameters are invalid
+	 * @throws UnsupportedEncodingException
+	 *             if the fromName or fromAddress parameters are invalid
 	 * @throws MessagingException
 	 */
 	public static void sendMessage(String subject, String body, String name,
@@ -38,9 +44,9 @@ public class MailOperations
 		msg.setSubject(subject);
 		msg.setText(body);
 
-		System.out.println("Sending message from " + fromAddress + " to "
+		logger.log(Level.FINEST, "Sending message from " + fromAddress + " to "
 				+ address);
 		Transport.send(msg);
-		System.out.println("Message sent.");
+		logger.log(Level.FINEST, "Message sent.");
 	}
 }

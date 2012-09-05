@@ -2,6 +2,8 @@ package net.brainvitamins.timeout.server;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.mail.MessagingException;
@@ -11,6 +13,9 @@ import net.brainvitamins.timeout.shared.EmailRecipient;
 
 public class ConfirmationRequestOperations
 {
+	private static final Logger logger = Logger
+			.getLogger(ConfirmationRequestOperations.class.getName());
+
 	/**
 	 * send out an email confirmation request (not sure this is a good
 	 * abstraction yet...)
@@ -45,14 +50,16 @@ public class ConfirmationRequestOperations
 
 		String verificationURL = confirmationURLBase + "?confirmationId="
 				+ confirmationRequest.getId();
-		System.out.println("Confirmation Request URL: " + verificationURL);
+		logger.log(Level.FINE, "Confirmation Request URL: " + verificationURL);
 
 		try
 		{
 			MailOperations
 					.sendMessage(
 							"Recipient confirmation",
-							"User "+ user.getNickname() + " has added you as a recipient of timeout notifications.\n To enable notification from the user, please click on the following link: "
+							"User "
+									+ user.getNickname()
+									+ " has added you as a recipient of timeout notifications.\n To enable notification from the user, please click on the following link: "
 									+ verificationURL, recipient.getName(),
 							recipient.getAddress(), "Vigilance Control Admin",
 							"admin@vigilance-control.appspotmail.com");

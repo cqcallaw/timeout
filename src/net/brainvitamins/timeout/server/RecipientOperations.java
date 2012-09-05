@@ -3,6 +3,8 @@ package net.brainvitamins.timeout.server;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Transaction;
@@ -12,6 +14,9 @@ import net.brainvitamins.timeout.shared.Recipient;
 
 public class RecipientOperations
 {
+	private static final Logger logger = Logger
+			.getLogger(RecipientOperations.class.getName());
+
 	/**
 	 * @param recipient
 	 * @param userId
@@ -39,8 +44,7 @@ public class RecipientOperations
 		{
 			if (tx.isActive())
 			{
-				// TODO: better logging support
-				System.out.println("Adding " + recipient + " failed.");
+				logger.log(Level.SEVERE, "Adding " + recipient + " failed.");
 				tx.rollback();
 			}
 			pm.close();
@@ -49,7 +53,8 @@ public class RecipientOperations
 
 	/**
 	 * @param recipient
-	 * @throws UnsupportedEncodingException if 
+	 * @throws UnsupportedEncodingException
+	 *             if
 	 */
 	public static void updateRecipient(EmailRecipient updatedRecipient,
 			User user, URL url) throws UnsupportedEncodingException
@@ -77,9 +82,8 @@ public class RecipientOperations
 			{
 				if (tx.isActive())
 				{
-					// TODO: better logging support
-					System.out.println("Update of " + currentRecipient + " to "
-							+ updatedRecipient + " failed.");
+					logger.log(Level.SEVERE, "Update of " + currentRecipient
+							+ " to " + updatedRecipient + " failed.");
 					tx.rollback();
 				}
 			}

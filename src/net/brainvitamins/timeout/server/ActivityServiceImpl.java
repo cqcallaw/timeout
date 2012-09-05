@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Cancellation;
@@ -22,6 +24,9 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class ActivityServiceImpl extends RemoteServiceServlet implements
 		ActivityService
 {
+	private static final Logger logger = Logger
+			.getLogger(ActivityServiceImpl.class.getName());
+
 	private Queue queue = QueueFactory.getQueue("activity");
 
 	private static final long serialVersionUID = 3820757361541824185L;
@@ -42,8 +47,8 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 
 		if (currentUser.getActivityLog() == null)
 		{
-			System.out.println("No activity found for "
-					+ currentUser.getNickname());
+			logger.log(Level.INFO,
+					"No activity found for " + currentUser.getNickname());
 			return activityLog;
 		}
 
@@ -128,9 +133,10 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 			Activity lastActivity = activityLog.get(0);
 			if (lastActivity instanceof Checkin)
 			{
-				queue.deleteTask(getTaskId(user, lastActivity));			
+				queue.deleteTask(getTaskId(user, lastActivity));
 			}
-			//urgh no feedback if the consumer's trying to cancel when there's nothing to cancel...
+			// urgh no feedback if the consumer's trying to cancel when there's
+			// nothing to cancel...
 		}
 	}
 
@@ -143,13 +149,12 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 			throw new IllegalStateException("Cannot obtain current user.");
 
 		cancelCheckin(user);
-		
+
 		Cancellation cancellation = new Cancellation();
 		ActivityOperations.log(user.getId(), cancellation);
 
-		PushOperations.pushToListener(getThreadLocalRequest()
-				.getSession().getId(), new CreateOperation<Activity>(
-				cancellation));		
+		PushOperations.pushToListener(getThreadLocalRequest().getSession()
+				.getId(), new CreateOperation<Activity>(cancellation));
 	}
 
 	private String getTaskId(User user, Activity activity)

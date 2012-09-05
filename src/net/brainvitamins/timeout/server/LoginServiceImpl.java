@@ -1,5 +1,8 @@
 package net.brainvitamins.timeout.server;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.jdo.PersistenceManager;
 import javax.jdo.Transaction;
 
@@ -13,9 +16,9 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class LoginServiceImpl extends RemoteServiceServlet implements
 		LoginService
 {
-	/**
-	 * 
-	 */
+	private static final Logger logger = Logger
+			.getLogger(LoginServiceImpl.class.getName());
+
 	private static final long serialVersionUID = 6912694102250330793L;
 
 	public LoginInfo login(String requestUri)
@@ -43,11 +46,11 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 				{
 					if (tx.isActive())
 					{
-						System.out.println("Failed to create user.");
+						logger.log(Level.SEVERE, "Failed to create user.");
 						tx.rollback();
 					}
 
-					System.out.println("Added " + newUser);
+					logger.log(Level.FINEST, "Added " + newUser);
 					pm.close();
 				}
 			}

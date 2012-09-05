@@ -5,6 +5,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServlet;
@@ -22,6 +24,9 @@ import net.brainvitamins.timeout.shared.operations.CreateOperation;
  */
 public class TimeoutServlet extends HttpServlet
 {
+	private static final Logger logger = Logger.getLogger(TimeoutServlet.class
+			.getName());
+
 	private static final long serialVersionUID = -1807657555459402441L;
 
 	// TODO: secure timeout URL (shouldn't be directly callable by the user)
@@ -49,76 +54,78 @@ public class TimeoutServlet extends HttpServlet
 
 		long timeout = Long.parseLong(timeoutParameter);
 
+		Date startTime;
 		try
 		{
 			SimpleDateFormat format = new SimpleDateFormat(
 					Constants.INTERNALDATEFORMAT);
 			format.setTimeZone(TimeZone.getTimeZone("UTC"));
-			Date startTime = format.parse(startTimeParameter);
+			startTime = format.parse(startTimeParameter);
 
-			Timeout activity = new Timeout(new Date(), timeout, startTime);
-
-			ActivityOperations.log(userId, activity);
-
-			User user = UserOperations.getUserWithRecipients(userId);
-
-			if (user == null)
-				throw new IllegalArgumentException("Invalid user specified.");
-
-			for (Recipient recipient : user.getRecipients())
-			{
-				if (recipient instanceof EmailRecipient)
-				{
-					EmailRecipient emailRecipient = (EmailRecipient) recipient;
-					if (emailRecipient.isVerified())
-					{
-						try
-						{
-							sendNotification(emailRecipient, user, activity);
-						}
-						catch (UnsupportedEncodingException e)
-						{
-							System.out
-									.println("Unsupported encoding exception while sending notification to recipient "
-											+ emailRecipient.toString()
-											+ ": "
-											+ e.getMessage());
-						}
-						catch (MessagingException e)
-						{
-							System.out
-									.println("Failed to send notification to recipient "
-											+ emailRecipient.toString()
-											+ ": "
-											+ e.getMessage());
-						}
-					}
-				}
-				// TODO: handle non-email recipients
-			}
-
-			PushOperations.pushToListener(sourceSessionId,
-					new CreateOperation<Activity>(activity));
 		}
 		catch (ParseException e)
 		{
-			System.out.println("Failed to parse timestamp: "
+			logger.log(Level.SEVERE, "Failed to parse timestamp: "
 					+ startTimeParameter);
+			return;
 		}
+
+		Timeout activity = new Timeout(new Date(), timeout, startTime);
+
+		ActivityOperations.log(userId, activity);
+
+		User user = UserOperations.getUserWithRecipients(userId);
+
+		if (user == null)
+			throw new IllegalArgumentException("Invalid user specified.");
+
+		for (Recipient recipient : user.getRecipients())
+		{
+			if (recipient instanceof EmailRecipient)
+			{
+				EmailRecipient emailRecipient = (EmailRecipient) recipient;
+				if (emailRecipient.isVerified())
+				{
+					try
+					{
+						sendNotification(emailRecipient, user, activity);
+					}
+					catch (UnsupportedEncodingException e)
+					{
+						System.out
+								.println("Unsupported encoding exception while sending notification to recipient "
+										+ emailRecipient.toString()
+										+ ": "
+										+ e.getMessage());
+					}
+					catch (MessagingException e)
+					{
+						System.out
+								.println("Failed to send notification to recipient "
+										+ emailRecipient.toString()
+										+ ": "
+										+ e.getMessage());
+					}
+				}
+			}
+			// TODO: handle non-email recipients
+		}
+
+		PushOperations.pushToListener(sourceSessionId,
+				new CreateOperation<Activity>(activity));
 	}
 
 	private void sendNotification(EmailRecipient recipient, User user,
 			Timeout timeout) throws UnsupportedEncodingException,
 			MessagingException
 	{
-		MailOperations
-				.sendMessage(
-						"Vigilance Control timeout notification",
-						"User " + user.getNickname() + " checked in at "
-								+ timeout.getStartTime()
-								+ ". This checkin timed out at "
-								+ timeout.getTimestamp(), recipient.getName(),
-						recipient.getAddress(), "Vigilance Control",
-						"admin@vigilance-control.appspotmail.com");
+		MailOperations.sendMessage(
+				"Vigilance Control timeout notification",
+				"User " + user.getNickname() + " checked in at "
+						+ timeout.getStartTime()
+						+ ". This checkin timed out at "
+						+ timeout.getTimestamp(), recipient.getName(),
+				recipient.getAddress(), "Vigilance Control",
+				"admin@vigilance-control.appspotmail.com");
 	}
 }

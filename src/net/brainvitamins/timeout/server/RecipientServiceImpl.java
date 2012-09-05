@@ -214,5 +214,4 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 			throw new IllegalArgumentException("Invalid email address.");
 		}
 	}
-
 }
