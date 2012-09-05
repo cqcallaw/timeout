@@ -77,7 +77,6 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	/**
 	 * @param recipient
 	 * @param userId
-	 *            TODO
 	 */
 	private void addRecipientCore(@NotNull Recipient recipient, String userId)
 	{

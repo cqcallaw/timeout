@@ -17,9 +17,14 @@ import net.brainvitamins.timeout.shared.Activity;
 import net.brainvitamins.timeout.shared.Recipient;
 
 @PersistenceCapable(detachable = "true")
-@FetchGroups({
-		@FetchGroup(name = "withRecipients", members = { @Persistent(name = "recipients") }),
-		@FetchGroup(name = "withActivityLog", members = { @Persistent(name = "activityLog") }) })
+@FetchGroups
+(
+		{
+			@FetchGroup(name = "withRecipients", members = { @Persistent(name = "recipients") }),
+			@FetchGroup(name = "withActivityLog", members = { @Persistent(name = "activityLog") })
+		}
+)
+
 public class User
 {
 	@PrimaryKey

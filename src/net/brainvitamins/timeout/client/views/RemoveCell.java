@@ -102,7 +102,6 @@ public class RemoveCell extends AbstractCell<Recipient>
 								@Override
 								public void onFailure(Throwable caught)
 								{
-									// TODO Auto-generated method stub
 									Window.alert("Error removing recipient: "
 											+ caught.getMessage());
 								}

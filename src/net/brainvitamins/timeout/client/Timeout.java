@@ -203,7 +203,6 @@ public class Timeout implements EntryPoint
 		RootPanel.get("content").add(homeView);
 
 		getActivity(activityDataProvider);
-
 		getRecipients(recipientDataProvider);
 
 		channelService.getChannelToken(new AsyncCallback<String>()
@@ -280,11 +279,12 @@ public class Timeout implements EntryPoint
 			@Override
 			public void onFailure(Throwable caught)
 			{
-				Window.alert("Error setting up channel: " + caught.getMessage() + " Please report this message to the administrator.");
+				Window.alert("Error setting up channel: " + caught.getMessage()
+						+ " Please report this message to the administrator.");
 			}
 		});
-		
-//		homeView.getActivityView().getTimeoutField().selectAll();
+
+		// homeView.getActivityView().getTimeoutField().selectAll();
 		homeView.getActivityView().getCheckinButton().setFocus(true);
 
 		logger.log(Level.INFO, "App loaded.");
