@@ -22,8 +22,8 @@ public class UserOperations
 		try
 		{
 			User currentUser = pm.getObjectById(User.class, userId);
-			User detached = pm.detachCopy(currentUser);
-			return detached;
+			pm.makeTransient(currentUser, true);
+			return currentUser;
 		}
 		catch (JDOObjectNotFoundException e)
 		{
@@ -51,8 +51,8 @@ public class UserOperations
 		{
 			User currentUser = pm.getObjectById(User.class, userId);
 
-			User detached = pm.detachCopy(currentUser);
-			return detached;
+			pm.makeTransient(currentUser, true);
+			return currentUser;
 		}
 		catch (JDOObjectNotFoundException e)
 		{
@@ -80,8 +80,8 @@ public class UserOperations
 		{
 			User currentUser = pm.getObjectById(User.class, userId);
 
-			User detached = pm.detachCopy(currentUser);
-			return detached;
+			pm.makeTransient(currentUser, true);
+			return currentUser;
 		}
 		catch (JDOObjectNotFoundException e)
 		{

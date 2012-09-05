@@ -64,13 +64,6 @@ public class ActivityServiceImpl extends RemoteServiceServlet implements
 		{
 			if (i >= sizeLimit) break;
 
-			// touch timeout field in Checkin object to make sure it's
-			// loaded. *grumble*
-			if (activity.getClass().equals(Checkin.class))
-			{
-				((Checkin) activity).getTimeout();
-			}
-
 			activityLog.add(activity);
 			i++;
 		}

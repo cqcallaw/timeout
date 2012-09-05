@@ -12,11 +12,11 @@ public class Timeout extends Activity implements Serializable
 	private static final long serialVersionUID = 5435541820544915944L;
 
 	@Persistent
-	private long timeout;
+	private long requestedTimeout;
 
-	public long getTimeout()
+	public long getRequestedTimeout()
 	{
-		return timeout;
+		return requestedTimeout;
 	}
 
 	@Persistent(defaultFetchGroup = "true")
@@ -32,10 +32,10 @@ public class Timeout extends Activity implements Serializable
 		this(new Date(), 0, new Date());
 	}
 
-	public Timeout(Date timestamp, long timeout, Date startTime)
+	public Timeout(Date timestamp, long requestedTimeout, Date startTime)
 	{
 		super(timestamp);
-		this.timeout = timeout;
+		this.requestedTimeout = requestedTimeout;
 		this.startTime = startTime;
 	}
 
@@ -49,7 +49,7 @@ public class Timeout extends Activity implements Serializable
 	public String toString()
 	{
 		return "Timeout [timestamp=" + getTimestamp().toGMTString()
-				+ ", timeout=" + timeout + ", startTime="
+				+ ", timeout=" + requestedTimeout + ", startTime="
 				+ startTime.toGMTString() + "]";
 	}
 }
