@@ -148,8 +148,6 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 	@UiHandler("checkinButton")
 	void handleCheckinClick(ClickEvent e)
 	{
-		// TODO: push updates to the client faster, for a tighter UI feedback
-		// loop
 		long timeout = Long.parseLong(timeoutField.getValue());
 
 		lockInput(checkinButton);

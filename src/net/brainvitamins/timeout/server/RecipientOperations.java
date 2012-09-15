@@ -54,7 +54,6 @@ public class RecipientOperations
 	/**
 	 * @param recipient
 	 * @throws UnsupportedEncodingException
-	 *             if
 	 */
 	public static void updateRecipient(EmailRecipient updatedRecipient,
 			User user, URL url) throws UnsupportedEncodingException

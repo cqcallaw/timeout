@@ -66,8 +66,8 @@ public class ConfirmationRequestOperations
 		}
 		catch (MessagingException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// TODO: re-throw as an exception that GWT can handle.
+			logger.log(Level.SEVERE, e.getMessage());
 		}
 	}
 

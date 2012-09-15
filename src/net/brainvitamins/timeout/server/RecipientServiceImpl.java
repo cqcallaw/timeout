@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.mail.internet.AddressException;
@@ -27,6 +29,9 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		RecipientService
 {
 	private static final long serialVersionUID = 6581374344337957491L;
+
+	private static final Logger logger = Logger
+			.getLogger(RecipientServiceImpl.class.getName());
 
 	@Override
 	public void addRecipient(@NotNull Recipient recipient)
@@ -69,8 +74,9 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		}
 		catch (MalformedURLException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// TODO: re-throw as an exception that GWT can handle (this error
+			// should be reported to the client).
+			logger.log(Level.SEVERE, e.getMessage());
 		}
 	}
 
@@ -113,7 +119,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void updateRecipient(@NotNull EmailRecipient recipient)
-			throws IllegalArgumentException
+			throws IllegalArgumentException, UnsupportedEncodingException
 	{
 		User currentUser = UserOperations.getCurrentUser();
 		validateRecipient(recipient);
@@ -131,13 +137,9 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 		}
 		catch (MalformedURLException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// TODO: re-throw as an exception that GWT can handle (this error
+			// should be reported to the client).
+			logger.log(Level.SEVERE, e.getMessage());
 		}
 
 		PushOperations.pushToListener(getThreadLocalRequest().getSession()

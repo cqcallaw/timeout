@@ -9,6 +9,7 @@ import net.brainvitamins.timeout.client.parsers.ActivityParser;
 import net.brainvitamins.timeout.client.parsers.RecipientParser;
 import net.brainvitamins.timeout.client.views.MainView;
 import net.brainvitamins.timeout.shared.Activity;
+import net.brainvitamins.timeout.shared.Checkin;
 import net.brainvitamins.timeout.shared.LoginInfo;
 import net.brainvitamins.timeout.shared.Recipient;
 import net.brainvitamins.timeout.shared.operations.DataOperation;
@@ -37,9 +38,6 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 
-/**
- * Entry point classes define <code>onModuleLoad()</code>.
- */
 public class Timeout implements EntryPoint
 {
 	/**
@@ -178,23 +176,25 @@ public class Timeout implements EntryPoint
 		RootPanel.get("content").add(loginPanel);
 	}
 
+	DefaultDateTimeFormatInfo dateFormatInfo = new DefaultDateTimeFormatInfo();
+	final String dateFormat = dateFormatInfo
+			.dateTimeShort(dateFormatInfo.timeFormatMedium(),
+					dateFormatInfo.dateFormatShort());
+
+	private final MainView homeView = new MainView(dateFormat);
+
 	private void loadMain(LoginInfo loginInfo)
 	{
 		logger.log(Level.INFO, "Loading app");
 		signOutLink.setHref(loginInfo.getLogoutUrl());
 		RootPanel.get("user").add(signOutLink);
 
-		DefaultDateTimeFormatInfo dateFormatInfo = new DefaultDateTimeFormatInfo();
-		final String dateFormat = dateFormatInfo.dateTimeShort(
-				dateFormatInfo.timeFormatMedium(),
-				dateFormatInfo.dateFormatShort());
-
 		// ugh, so wrong and backwards to initialize a view without having a
 		// data provider attached...
 		// visual layout editing fails otherwise, though
 		// final MainPresentation homeView = new MainPresentation(dateFormat,
 		// activityDataProvider, recipientDataProvider);
-		final MainView homeView = new MainView(dateFormat);
+
 		activityDataProvider.addDataDisplay(homeView.getActivityView()
 				.getCellView());
 		recipientDataProvider.addDataDisplay(homeView.getRecipientView()
@@ -309,7 +309,7 @@ public class Timeout implements EntryPoint
 			@Override
 			public void onFailure(Throwable caught)
 			{
-				// TODO:
+				// TODO: handle getRecipients failure
 			}
 		});
 	}
@@ -323,7 +323,7 @@ public class Timeout implements EntryPoint
 			@Override
 			public void onFailure(Throwable caught)
 			{
-				// TODO:
+				// TODO: handle getActivity() failure
 			}
 
 			@Override
@@ -335,21 +335,19 @@ public class Timeout implements EntryPoint
 				{
 					activityList.add(activity);
 				}
-				// //TODO: awesome data model stuff so we don't have to do hax
-				// like this
-				//
-				// long timeout = 10000;
-				// // set default timeout to most recent checkin's setting
-				// for (Activity entry : result)
-				// {
-				// if (entry.getClass().equals(Checkin.class))
-				// {
-				// timeout = ((Checkin) entry).getTimeout();
-				// break;
-				// }
-				// }
-				//
-				// checkinForm.setTimeout(timeout);
+
+				long timeout = 10000;
+				// set default timeout to most recent checkin's setting
+				for (Activity entry : result)
+				{
+					if (entry.getClass().equals(Checkin.class))
+					{
+						timeout = ((Checkin) entry).getTimeout();
+						break;
+					}
+				}
+
+				homeView.getActivityView().setTimeout(timeout);
 			}
 		});
 	}
