@@ -1,84 +1,63 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.5" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee                http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
-	<!-- Servlets -->
-	<!-- <servlet> -->
-	<!-- <servlet-name>greetServlet</servlet-name> -->
-	<!-- <servlet-class>net.brainvitamins.presencepoll.server.GreetingServiceImpl</servlet-class> -->
-	<!-- </servlet> -->
-
-	<!-- <servlet-mapping> -->
-	<!-- <servlet-name>greetServlet</servlet-name> -->
-	<!-- <url-pattern>/presence_poll/greet</url-pattern> -->
-	<!-- </servlet-mapping> -->
-
-	<!-- <servlet> -->
-	<!-- <servlet-name>checkinServlet</servlet-name> -->
-	<!-- <servlet-class>net.brainvitamins.timeout.server.CheckinServiceImpl</servlet-class> -->
-	<!-- </servlet> -->
-
-	<!-- <servlet-mapping> -->
-	<!-- <servlet-name>checkinServlet</servlet-name> -->
-	<!-- <url-pattern>/timeout/checkin</url-pattern> -->
-	<!-- </servlet-mapping> -->
-
-	<servlet>
+    	<servlet>
 		<servlet-name>emailRecipientConfirmationServlet</servlet-name>
-		<servlet-class>net.brainvitamins.timeout.server.EmailRecipientConfirmationServlet</servlet-class>
+		<servlet-class>net.brainvitamins.vigilance.server.EmailRecipientConfirmationServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>emailRecipientConfirmationServlet</servlet-name>
-		<url-pattern>/timeout/confirmation/email</url-pattern>
+		<url-pattern>/vigilance/confirmation/email/</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>timeoutServlet</servlet-name>
-		<servlet-class>net.brainvitamins.timeout.server.TimeoutServlet</servlet-class>
+		<servlet-class>net.brainvitamins.vigilance.server.TimeoutServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>timeoutServlet</servlet-name>
-		<url-pattern>/timeout/timeout</url-pattern>
+		<url-pattern>/vigilance/timeout</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>loginService</servlet-name>
-		<servlet-class>net.brainvitamins.timeout.server.LoginServiceImpl</servlet-class>
+		<servlet-class>net.brainvitamins.vigilance.server.LoginServiceImpl</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>loginService</servlet-name>
-		<url-pattern>/timeout/login</url-pattern>
+		<url-pattern>/vigilance/login</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>activityService</servlet-name>
-		<servlet-class>net.brainvitamins.timeout.server.ActivityServiceImpl</servlet-class>
+		<servlet-class>net.brainvitamins.vigilance.server.ActivityServiceImpl</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>activityService</servlet-name>
-		<url-pattern>/timeout/activity</url-pattern>
+		<url-pattern>/vigilance/activity</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>recipientService</servlet-name>
-		<servlet-class>net.brainvitamins.timeout.server.RecipientServiceImpl</servlet-class>
+		<servlet-class>net.brainvitamins.vigilance.server.RecipientServiceImpl</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>recipientService</servlet-name>
-		<url-pattern>/timeout/recipient</url-pattern>
+		<url-pattern>/vigilance/recipient</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>channelService</servlet-name>
-		<servlet-class>net.brainvitamins.timeout.server.ChannelServiceImpl</servlet-class>
+		<servlet-class>net.brainvitamins.vigilance.server.ChannelServiceImpl</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>channelService</servlet-name>
-		<url-pattern>/timeout/channel</url-pattern>
+		<url-pattern>/vigilance/channel</url-pattern>
 	</servlet-mapping>
 
 	<!-- Default page to serve -->
