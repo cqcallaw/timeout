@@ -26,8 +26,7 @@ import net.brainvitamins.vigilance.shared.services.RecipientService;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class RecipientServiceImpl extends RemoteServiceServlet implements
-		RecipientService
-{
+		RecipientService {
 	private static final long serialVersionUID = 6581374344337957491L;
 
 	private static final Logger logger = Logger
@@ -35,8 +34,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void addRecipient(@NotNull Recipient recipient)
-			throws IllegalArgumentException
-	{
+			throws IllegalArgumentException {
 		validateRecipient(recipient);
 
 		addRecipientCore(recipient, null);
@@ -44,8 +42,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void addRecipient(@NotNull EmailRecipient recipient)
-			throws IllegalArgumentException, UnsupportedEncodingException
-	{
+			throws IllegalArgumentException, UnsupportedEncodingException {
 		validateRecipient(recipient);
 
 		// TODO: handle email failure modes:
@@ -56,8 +53,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 
 		User currentUser = UserOperations.getCurrentUser();
 
-		if (currentUser == null)
-		{
+		if (currentUser == null) {
 			throw new IllegalStateException("Unable to obtain current user.");
 		}
 
@@ -65,15 +61,12 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 
 		HttpServletRequest request = this.getThreadLocalRequest();
 
-		try
-		{
+		try {
 			ConfirmationRequestOperations.sendConfirmationRequest(recipient,
 					currentUser, new URL("http://" + request.getServerName()
 							+ ":" + request.getServerPort()
-							+ "/confirmation/email"));
-		}
-		catch (MalformedURLException e)
-		{
+							+ "/vigilance/confirmation/email"));
+		} catch (MalformedURLException e) {
 			// TODO: re-throw as an exception that GWT can handle (this error
 			// should be reported to the client).
 			logger.log(Level.SEVERE, e.getMessage());
@@ -84,20 +77,17 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	 * @param recipient
 	 * @param userId
 	 */
-	private void addRecipientCore(@NotNull Recipient recipient, String userId)
-	{
+	private void addRecipientCore(@NotNull Recipient recipient, String userId) {
 		RecipientOperations.addRecipient(recipient, userId);
 		PushOperations.pushToListener(getThreadLocalRequest().getSession()
 				.getId(), new CreateOperation<Recipient>(recipient));
 	}
 
 	@Override
-	public List<Recipient> getRecipients()
-	{
+	public List<Recipient> getRecipients() {
 		User currentUser = UserOperations.getCurrentUserWithRecipients();
 
-		if (currentUser == null)
-		{
+		if (currentUser == null) {
 			throw new IllegalStateException("Unable to obtain current user.");
 		}
 
@@ -105,11 +95,9 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 				currentUser.getRecipients());
 
 		// sort by name, descending
-		Collections.sort(result, new Comparator<Recipient>()
-		{
+		Collections.sort(result, new Comparator<Recipient>() {
 			@Override
-			public int compare(Recipient o1, Recipient o2)
-			{
+			public int compare(Recipient o1, Recipient o2) {
 				return o1.getName().compareTo(o2.getName());
 			}
 		});
@@ -119,23 +107,20 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void updateRecipient(@NotNull EmailRecipient recipient)
-			throws IllegalArgumentException, UnsupportedEncodingException
-	{
+			throws IllegalArgumentException, UnsupportedEncodingException {
 		User currentUser = UserOperations.getCurrentUser();
 		validateRecipient(recipient);
 
 		HttpServletRequest request = this.getThreadLocalRequest();
 
-		try
-		{
+		try {
 			RecipientOperations.updateRecipient(
 					recipient,
 					currentUser,
 					new URL("http://" + request.getServerName() + ":"
-							+ request.getServerPort() + "/confirmation/email"));
-		}
-		catch (MalformedURLException e)
-		{
+							+ request.getServerPort()
+							+ "/vigilance/confirmation/email"));
+		} catch (MalformedURLException e) {
 			// TODO: re-throw as an exception that GWT can handle (this error
 			// should be reported to the client).
 			logger.log(Level.SEVERE, e.getMessage());
@@ -148,20 +133,17 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void removeRecipient(@NotNull Recipient recipient)
-			throws IllegalArgumentException
-	{
+			throws IllegalArgumentException {
 		validateRecipient(recipient);
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		pm.getFetchPlan().addGroup("withRecipients");
 
-		try
-		{
+		try {
 			User currentUser = pm.getObjectById(User.class,
 					UserOperations.getCurrentUserId());
 
-			if (currentUser == null)
-			{
+			if (currentUser == null) {
 				throw new IllegalArgumentException("Invalid userId.");
 			}
 
@@ -173,9 +155,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 						"Recipient not found in database");
 			else
 				currentUser.getRecipients().remove(ref);
-		}
-		finally
-		{
+		} finally {
 			pm.close();
 		}
 
@@ -186,8 +166,7 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	/**
 	 * @param recipient
 	 */
-	private void validateRecipient(Recipient recipient)
-	{
+	private void validateRecipient(Recipient recipient) {
 		// validation
 		if (recipient == null)
 			throw new IllegalArgumentException("Recipient cannot be null.");
@@ -202,16 +181,12 @@ public class RecipientServiceImpl extends RemoteServiceServlet implements
 	/**
 	 * @param recipient
 	 */
-	private void validateRecipient(EmailRecipient recipient)
-	{
+	private void validateRecipient(EmailRecipient recipient) {
 		validateRecipient((Recipient) recipient);
 
-		try
-		{
+		try {
 			new InternetAddress(recipient.getAddress());
-		}
-		catch (AddressException e)
-		{
+		} catch (AddressException e) {
 			throw new IllegalArgumentException("Invalid email address.");
 		}
 	}

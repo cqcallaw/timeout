@@ -7,7 +7,7 @@
 
 	<servlet-mapping>
 		<servlet-name>emailRecipientConfirmationServlet</servlet-name>
-		<url-pattern>/vigilance/confirmation/email/</url-pattern>
+		<url-pattern>/vigilance/confirmation/email</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
