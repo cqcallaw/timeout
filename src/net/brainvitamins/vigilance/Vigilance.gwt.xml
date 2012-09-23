@@ -4,6 +4,9 @@
 	<inherits name="com.google.gwt.user.User" />
 	<inherits name="com.google.gwt.logging.Logging" />
 	<inherits name='com.google.gwt.appengine.channel.Channel' />
+
+	<set-property name="gwt.logging.popupHandler" value="DISABLED" />
+	
 	<!-- <inherits name="com.google.gwt.junit.JUnit" /> -->
 
 	<inherits name='com.google.gwt.user.theme.clean.Clean' />

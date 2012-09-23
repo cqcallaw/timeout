@@ -1,5 +1,6 @@
 package net.brainvitamins.vigilance.client.views;
 
+import com.google.gwt.i18n.client.NumberFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,8 +27,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
-public class ActivityView extends Composite implements CellTableView<Activity>
-{
+public class ActivityView extends Composite implements CellTableView<Activity> {
 	private static Image loadingImage = new Image("loading.gif");
 
 	private ActivityServiceAsync activityService = GWT
@@ -36,8 +36,7 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 	private static ActivityUiBinder uiBinder = GWT
 			.create(ActivityUiBinder.class);
 
-	interface ActivityUiBinder extends UiBinder<Widget, ActivityView>
-	{
+	interface ActivityUiBinder extends UiBinder<Widget, ActivityView> {
 	}
 
 	private static Logger logger = Logger.getLogger("ActivityView");
@@ -45,15 +44,13 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 	@UiField(provided = true)
 	final CellTable<Activity> activityView;
 
-	public CellTable<Activity> getCellView()
-	{
+	public CellTable<Activity> getCellView() {
 		return activityView;
 	}
 
 	private String dateFormat = "yyyy-MM-dd hh:MM:ss";
 
-	public String getDateFormat()
-	{
+	public String getDateFormat() {
 		return dateFormat;
 	}
 
@@ -62,35 +59,40 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 
 	@UiField
 	Button checkinButton;
-	
+
 	@UiField
 	Button cancelCheckinButton;
 
 	@UiField
 	Label errorLabel;
 
-	public Button getCheckinButton()
-	{
+	public Button getCheckinButton() {
 		return checkinButton;
 	}
 
-	public TextBox getTimeoutField()
-	{
+	public TextBox getTimeoutField() {
 		return timeoutField;
 	}
 
-	public void setTimeout(long value)
-	{
-		timeoutField.setValue(String.valueOf(value));
+	/**
+	 * Sets the timeout (in user units) of the
+	 * 
+	 * @param value
+	 *            the timeout value in milliseconds
+	 */
+	public void setTimeout(long value) {
+		timeoutField.setValue(String.valueOf(toUserUnits(value)));
 	}
 
-	public ActivityView(final String dateFormat)
-	{
+	public ActivityView(final String dateFormat) {
 		if (dateFormat == null || dateFormat.isEmpty())
 			throw new IllegalArgumentException(
 					"dateFormat cannot be empty or null.");
 
 		this.dateFormat = dateFormat;
+
+		final NumberFormat userTimeoutFormat = NumberFormat
+				.getFormat("###.###");
 
 		activityView = new CellTable<Activity>();
 		activityView.setEmptyTableWidget(new Label("No recent activity"));
@@ -98,37 +100,33 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 		activityView
 				.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.DISABLED);
 
-		TextColumn<Activity> timestampColumn = new TextColumn<Activity>()
-		{
+		TextColumn<Activity> timestampColumn = new TextColumn<Activity>() {
 			@Override
-			public String getValue(Activity activity)
-			{
+			public String getValue(Activity activity) {
 				return DateTimeFormat.getFormat(dateFormat).format(
 						activity.getTimestamp());
 			}
 		};
 
-		TextColumn<Activity> typeColumn = new TextColumn<Activity>()
-		{
+		TextColumn<Activity> typeColumn = new TextColumn<Activity>() {
 			@Override
-			public String getValue(Activity activity)
-			{
+			public String getValue(Activity activity) {
 				// using Class.getSimpleName() messes with UiBinder stuff
 				String className = activity.getClass().getName();
 				return className.substring(className.lastIndexOf('.') + 1);
 			}
 		};
 
-		TextColumn<Activity> timeoutColumn = new TextColumn<Activity>()
-		{
+		TextColumn<Activity> timeoutColumn = new TextColumn<Activity>() {
 			@Override
-			public String getValue(Activity activity)
-			{
-				if (activity.getClass().equals(Checkin.class))
-				{
-					return String.valueOf(((Checkin) activity).getTimeout());
-				}
-				else
+			public String getValue(Activity activity) {
+				if (activity.getClass().equals(Checkin.class)) {
+					// return String.valueOf(toUserUnits(((Checkin) activity)
+					// .getTimeout()));
+					return userTimeoutFormat
+							.format((toUserUnits(((Checkin) activity)
+									.getTimeout())));
+				} else
 					return "";
 			}
 		};
@@ -146,26 +144,25 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 	}
 
 	@UiHandler("checkinButton")
-	void handleCheckinClick(ClickEvent e)
-	{
-		long timeout = Long.parseLong(timeoutField.getValue());
+	void handleCheckinClick(ClickEvent e) {
+
+		// TODO: communicate parse errors to the user
+		long timeout = fromUserUnits(Double
+				.parseDouble(timeoutField.getValue()));
 
 		lockInput(checkinButton);
 
-		activityService.checkin(timeout, new AsyncCallback<Void>()
-		{
+		activityService.checkin(timeout, new AsyncCallback<Void>() {
 
 			@Override
-			public void onSuccess(Void result)
-			{
+			public void onSuccess(Void result) {
 				unlockInput();
 				errorLabel.setText("");
 				errorLabel.setVisible(false);
 			}
 
 			@Override
-			public void onFailure(Throwable caught)
-			{
+			public void onFailure(Throwable caught) {
 				unlockInput();
 				showError("Error checking in: " + caught
 						+ " Please report this error to the administrator.");
@@ -174,24 +171,20 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 	}
 
 	@UiHandler("cancelCheckinButton")
-	void handleCancelCheckinClick(ClickEvent e)
-	{
+	void handleCancelCheckinClick(ClickEvent e) {
 		lockInput(cancelCheckinButton);
-		
-		activityService.cancelCheckin(new AsyncCallback<Void>()
-		{
+
+		activityService.cancelCheckin(new AsyncCallback<Void>() {
 
 			@Override
-			public void onSuccess(Void result)
-			{
+			public void onSuccess(Void result) {
 				unlockInput();
 				errorLabel.setText("");
 				errorLabel.setVisible(false);
 			}
 
 			@Override
-			public void onFailure(Throwable caught)
-			{
+			public void onFailure(Throwable caught) {
 				unlockInput();
 				showError("Error checking in: " + caught
 						+ " Please report this error to the administrator.");
@@ -201,16 +194,16 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 
 	private Button lockButton;
 	private String lockButtonText;
-	
-	private void lockInput(Button source)
-	{
+
+	private void lockInput(Button source) {
 		logger.log(Level.FINE, "Locking input...");
 		if (lockButton != null)
-			throw new IllegalStateException("Attempted to lock an activity view that is already locked.");
-		
+			throw new IllegalStateException(
+					"Attempted to lock an activity view that is already locked.");
+
 		lockButton = source;
 		lockButtonText = source.getText();
-		
+
 		source.setEnabled(false);
 
 		source.setText("");
@@ -218,24 +211,32 @@ public class ActivityView extends Composite implements CellTableView<Activity>
 		logger.log(Level.FINE, "Input locked.");
 	}
 
-	private void unlockInput()
-	{
+	private void unlockInput() {
 		logger.log(Level.FINE, "Unlocking input...");
 		if (lockButton == null)
-			throw new IllegalStateException("Attempted to unlock an activity view that is not locked.");
-		
+			throw new IllegalStateException(
+					"Attempted to unlock an activity view that is not locked.");
+
 		lockButton.setEnabled(true);
 
 		lockButton.setText(lockButtonText);
-		
+
 		lockButton = null;
 		lockButtonText = "";
 		logger.log(Level.FINE, "Input unlocked.");
 	}
 
-	private void showError(String error)
-	{
+	private void showError(String error) {
 		errorLabel.setText(error);
 		errorLabel.setVisible(true);
+	}
+
+	// TODO: proper unit conversion
+	private double toUserUnits(long value) {
+		return (double) value / 3600000.00; // to hours
+	}
+
+	private long fromUserUnits(double value) {
+		return (long) (value * 3600000); // from hours
 	}
 }
