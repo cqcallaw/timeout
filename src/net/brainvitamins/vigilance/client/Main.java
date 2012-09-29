@@ -336,7 +336,7 @@ public class Main implements EntryPoint
 					activityList.add(activity);
 				}
 
-				long timeout = 10000;
+				long timeout = 3600000; //one hour
 				// set default timeout to most recent checkin's setting
 				for (Activity entry : result)
 				{

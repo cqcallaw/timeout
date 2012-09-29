@@ -9,8 +9,8 @@
 			<g:Button ui:field="checkinButton" text="Checkin" tabIndex="1" focus="true" />
 			for
 			<g:TextBox name="timeout" ui:field="timeoutField" tabIndex="2"
-				value="1000" />
-			hours
+				value="1" />
+			hour(s)
 
 			<g:Button ui:field="cancelCheckinButton" text="Cancel Checkin" tabIndex="3"/>
 			<g:Label ui:field="errorLabel" styleName="error-Label" visible="false" />
